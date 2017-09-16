@@ -1,0 +1,94 @@
+<?php
+include('session.php');
+
+$menu[] = "catalog";
+$menu[] = "services-product";
+$title = "Manage - Services Product";
+
+// get sale order details
+
+$sql = "SELECT * FROM services_product";
+$result = mysqli_query($db,$sql);
+//$rows = mysqli_fetch_assoc($result);
+$count = mysqli_num_rows($result);
+
+
+?>
+<html>
+	<?php include "head.php"; ?>
+	<body>
+		<div id="container">
+			<?php include 'header.php';?>
+			<?php include 'leftnav.php';?>
+			
+			
+			<div id="content">
+				<div class="page-header">
+					<div class="container-fluid">
+						
+						<div class="pull-right">
+							<a href="add-edit-services-product.phtml" data-toggle="tooltip" title="" class="btn btn-primary" data-original-title="Add New"><i class="fa fa-plus"></i></a>
+							<!--button type="button" data-toggle="tooltip" title="" class="btn btn-danger" onclick="confirm('Are you sure?') ? $('#form-manage-sales').submit() : false;" data-original-title="Delete"><i class="fa fa-trash-o"></i></button-->
+						</div>
+					
+						<h1>Services Product</h1>
+						<ul class="breadcrumb">
+							<li><a href="">Home</a></li>
+							<li><a href="">Manage Services Product</a></li>
+						</ul>
+					</div>
+				</div>
+				<div class="container-fluid">
+					<div class="panel panel-default">
+						<div class="panel-heading">
+							<h3 class="panel-title"><i class="fa fa-list"></i> Sales Billing List</h3>
+						</div>
+						<div class="panel-body">
+							<form action="" method="post" enctype="multipart/form-data" id="form-manage-sales">
+								<div class="table-responsive">
+									<table class="table table-bordered table-hover">
+										<thead>
+											<tr>
+												<td style="width: 1px;" class="text-center"><input type="checkbox" onclick="$('input[name*=\'selected\']').prop('checked', this.checked);"></td>
+												<td class="text-left">Id</td>
+												<td class="text-left">Services Product</td>
+												<td class="text-left">Action</td>
+											</tr>
+										</thead>
+										<tbody>
+											<?php if($count >= 1) : ?>
+												<?php while($row = mysqli_fetch_assoc($result)): ?>
+													<tr>
+														<td class="text-center">
+															<input type="checkbox" name="selected[]" value="33">
+														</td>
+														<td class="text-left"><?php echo $row['id']; ?></td>
+														<td class="text-left"><?php echo $row['product_name']; ?></td>
+														<td class="text-right"><a href="add-edit-services-product.phtml?id=<?php echo $row['id']; ?>" data-toggle="tooltip" title="" class="btn btn-primary" data-original-title="View Bill"><i class="fa fa-eye"></i></a></td>
+													</tr>
+												<?php endwhile; ?>
+											<?php else: ?>
+											<tr>
+												<td colspan='4' style="text-align:center;">No Services Product</td>
+											</tr>
+											<?php endif; ?>
+										</tbody>
+									</table>
+								</div>
+							</form>
+						</div>
+					</div>
+				</div>
+			
+			
+			
+		</div>
+		
+		<!-- add js -->
+		<script src="js/jquery-3.2.1.min.js"></script>
+		<script src="js/bootstrap.min.js"></script>
+		<script src="js/jquery-ui.min.js"></script>
+		<script src="js/theme.js"></script>
+		<script src="js/common.js"></script>
+	</body>
+</html>

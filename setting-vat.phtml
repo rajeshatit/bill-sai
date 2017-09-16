@@ -1,0 +1,133 @@
+<?php
+include('session.php');
+
+$menu[] = "setting";
+$menu[] = "vat";
+$title = "Setting - VAT";
+
+	if($_SERVER["REQUEST_METHOD"] == "POST") {
+		//print_r($_POST); exit;
+		// Get form details
+		$content['sale_vat'] = $_POST['sale_vat'];
+		$content['services_vat'] = $_POST['services_vat'];
+		$content['sales_type'] = $_POST['sales_type'];
+		$content['services_type'] = $_POST['services_type'];
+		$value_id = $_POST['value_id'];
+		
+		foreach($content as $key => $value){
+			if($value_id){
+				$sql = "UPDATE setting SET value='".$value."' WHERE attribute='".$key."'";
+			}else{
+				$sql = "INSERT INTO setting (attribute,value) VALUE ('".$key."','".$value."')";
+			}
+			mysqli_query($db, $sql);
+		}
+		header("location: setting-vat.phtml");
+		
+		
+	}
+	
+	$contents = array('sale_vat','services_vat','sales_type','services_type');
+	$value = array();
+	foreach($contents as $key){
+		$sql = "SELECT value FROM setting WHERE attribute = '$key'";
+		$result = mysqli_query($db,$sql);
+		$row = mysqli_fetch_array($result,MYSQLI_ASSOC);
+		$value[$key] = $row['value'];
+	}
+?>
+<html>
+	<?php include "head.php"; ?>
+	<body>
+		<div id="container">
+			<?php include 'header.php';?>
+			<?php include 'leftnav.php';?>
+			
+			
+			<div id="content">
+				<div class="page-header">
+					<div class="container-fluid">
+						<div class="pull-right">
+							<button type="submit" form="form-category" data-toggle="tooltip" title="" class="btn btn-primary" data-original-title="Save Settings"><i class="fa fa-save"></i></button>
+							<!--a href="manage-sales.phtml" data-toggle="tooltip" title="" class="btn btn-default" data-original-title="Cancel"><i class="fa fa-reply"></i></a-->
+						</div>
+						<h1>Setting</h1>
+						<ul class="breadcrumb">
+							<li><a href="">Home</a></li>
+							<li><a href="">Setting</a></li>
+						</ul>
+					</div>
+				</div>
+				<div class="container-fluid">
+					<div class="panel panel-default">
+						<div class="panel-heading">
+							<h3 class="panel-title"><i class="fa fa-pencil"></i> Setting</h3>
+						</div>
+						<div class="panel-body">
+							<form action="setting-vat.phtml" method="post" enctype="multipart/form-data" id="form-add-sales">
+								<ul class="nav nav-tabs">
+									<li class="active"><a href="#tab-setting" data-toggle="tab" aria-expanded="true">Sales</a></li>
+									<li class=""><a href="#tab-setting-cgst" data-toggle="tab" aria-expanded="true">Servies</a></li>
+								</ul>
+								<div class="tab-content">
+									<div class="tab-pane active" id="tab-setting">
+										<div class="tab-content">
+											
+											<div class="form-group required">
+												<label class="col-sm-2 control-label" for="input-vat">Sales Vat(% percent)</label>
+												<div class="col-sm-10">
+												<input type="hidden" name="value_id" value="<?php if($value['sale_vat']){echo '1';}else{echo '0';}?>" />
+													<input type="text" name="sale_vat" value="<?php echo $value['sale_vat']; ?>" placeholder="VAT" id="input-name1" class="form-control">
+												</div>
+											</div>
+											<div class="form-group">
+												<label class="col-sm-2 control-label" for="select-sales">Sales Calculation</label>
+												<div class="col-sm-10">
+													<select name="sales_type" id="select-sales" class="form-control">
+														<option value="none" <?php if($value['sales_type']=='none'){echo "selected";}?> >None</option>
+														<option value="include" <?php if($value['sales_type']=='include'){echo "selected";}?> >Separate VAT</option>
+														<option value="exclude" <?php if($value['sales_type']=='exclude'){echo "selected";}?> >Add VAT</option>
+													</select>
+												</div>
+											</div>
+										</div>
+									</div>
+									<div class="tab-pane" id="tab-setting-cgst">
+										<div class="tab-content">
+											
+											<div class="form-group required">
+												<label class="col-sm-2 control-label" for="input-vat">Services Vat(% percent)</label>
+												<div class="col-sm-10">
+													<input type="text" name="services_vat" value="<?php echo $value['services_vat']; ?>" placeholder="VAT" id="input-name1" class="form-control">
+												</div>
+											</div>
+											<div class="form-group">
+												<label class="col-sm-2 control-label" for="select-services">Services Calculation</label>
+												<div class="col-sm-10">
+													<select name="services_type" id="select-sales" class="form-control">
+														<option value="none" <?php if($value['services_type']=='none'){echo "selected";}?> >None</option>
+														<option value="include" <?php if($value['services_type']=='include'){echo "selected";}?> >Separate VAT</option>
+														<option value="exclude" <?php if($value['services_type']=='exclude'){echo "selected";}?> >Add VAT</option>
+													</select>
+												</div>
+											</div>
+										</div>
+									</div>
+								</div>
+							</form>
+						</div>
+					</div>
+				</div>
+			
+			
+			
+		</div>
+		
+		<!-- add js -->
+		<script src="js/jquery-3.2.1.min.js"></script>
+		<script src="js/bootstrap.min.js"></script>
+		<script src="js/jquery-ui.min.js"></script>
+		<script src="js/theme.js"></script>
+		<script src="js/common.js"></script>
+	</body>
+</html>

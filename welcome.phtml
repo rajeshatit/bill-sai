@@ -1,0 +1,172 @@
+<?php
+include('session.php');
+
+$menu[] = "dashboard";
+$title = "Billing - Dashboard";
+
+// get total sale order details
+
+$sql = "SELECT * FROM bill_sale_order";
+$result = mysqli_query($db,$sql);
+//$rows = mysqli_fetch_assoc($result);
+$sale_count = mysqli_num_rows($result);
+
+// get total services order details
+$sql = "SELECT * FROM bill_service_order";
+$result = mysqli_query($db,$sql);
+//$rows = mysqli_fetch_assoc($result);
+$service_count = mysqli_num_rows($result);
+
+//Curent month sale total
+$sql = "SELECT SUM(grand_total) AS total_sum FROM bill_sale_order WHERE YEAR(date_added) = YEAR(CURRENT_DATE()) AND MONTH(date_added) = MONTH(CURRENT_DATE())";
+$result = mysqli_query($db,$sql);
+$row = mysqli_fetch_assoc($result);
+$sale_sum = $row['total_sum'];
+
+//Curent month services total
+$sql = "SELECT SUM(grand_total) AS total_sum FROM bill_service_order WHERE YEAR(date_added) = YEAR(CURRENT_DATE()) AND MONTH(date_added) = MONTH(CURRENT_DATE())";
+$result = mysqli_query($db,$sql);
+$row = mysqli_fetch_assoc($result);
+$service_sum = $row['total_sum'];
+
+?>
+<html>
+	<?php include "head.php"; ?>
+	<body>
+		<div id="container">
+			<?php include 'header.php';?>
+			<?php include 'leftnav.php';?>
+			
+			
+			<div id="content">
+				<div class="page-header">
+					<div class="container-fluid">
+						<h1>Dashboard</h1>
+						<ul class="breadcrumb">
+							<li><a href="">Home</a></li>
+							<li><a href="">Dashboard</a></li>
+						</ul>
+					</div>
+				</div>
+				<div class="container-fluid">
+					<div class="row">
+						<div class="col-lg-3 col-md-3 col-sm-6">
+							<div class="tile">
+								<div class="tile-heading">
+									Total Sales
+									<span class="pull-right"></span></div>
+								<div class="tile-body">
+									<i class="fa fa-shopping-cart"></i>
+									<h2 class="pull-right"><?php echo $sale_count; ?></h2>
+								</div>
+								<div class="tile-footer">
+									<a href="manage-sales.phtml">View more...</a>
+								</div>
+							</div>
+						</div>
+						<div class="col-lg-3 col-md-3 col-sm-6">
+							<div class="tile">
+								<div class="tile-heading">
+									Total Services
+									<span class="pull-right"></span></div>
+								<div class="tile-body">
+									<i class="fa fa-car"></i>
+									<h2 class="pull-right"><?php echo $service_count; ?></h2>
+								</div>
+								<div class="tile-footer">
+									<a href="manage-services.phtml">View more...</a>
+								</div>
+							</div>
+						</div>
+						<div class="col-lg-3 col-md-3 col-sm-6">
+							<div class="tile">
+								<div class="tile-heading">
+									Current Sales
+									<span class="pull-right"></span></div>
+								<div class="tile-body">
+									<i class="fa fa-calendar-check-o"></i>
+									<h2 class="pull-right"><?php echo number_format((float)$sale_sum, 0, '.', ''); ?></h2>
+								</div>
+								<div class="tile-footer">
+									<span class="current_total_sale">Total</span>
+								</div>
+							</div>
+						</div>
+						<div class="col-lg-3 col-md-3 col-sm-6">
+							<div class="tile">
+								<div class="tile-heading">
+									Current Services
+									<span class="pull-right"></span></div>
+								<div class="tile-body">
+									<i class="fa fa-signal"></i>
+									<h2 class="pull-right"><?php echo number_format((float)$service_sum, 0, '.', ''); ?></h2>
+								</div>
+								<div class="tile-footer">
+									<span class="current_total_services">Total</span>
+								</div>
+							</div>
+						</div>
+					</div>
+					<div class="row">
+						<div class="col-lg-6 col-md-12 col-sm-12">
+							<div class="panel panel-default">
+								<div class="panel-heading">
+									<h3 class="panel-title"><i class="fa fa-line-chart"></i> Sales / Services Chart</h3>
+								</div>
+								<div class="panel-body">
+									<div class="chart-container">
+										<canvas id="current-sales-services"></canvas>
+									</div>
+								</div>
+							</div>
+						</div>
+						<div class="col-lg-6 col-md-12 col-sm-12">
+							<div class="panel panel-default">
+								<div class="panel-heading">
+									<h3 class="panel-title"><i class="fa fa-flash"></i> Quick Links</h3>
+								</div>
+								<div class="panel-body">
+									<div class="row">
+										<div class="form-group">
+											<label class="col-sm-4 control-label" for="input-name">Sales</label>
+											<div class="col-sm-8">
+												<a href="add-sales-bill.phtml">
+													<button class="btn btn-primary" type="button" style="width: 180px;text-align: left;" data-toggle="tooltip" data-original-title="ADD Sales Order" value="services-clear"><i class="fa fa-plus"></i> Add Sales Order</button>
+												</a>
+											</div>
+										</div>
+										<div class="form-group">
+											<label class="col-sm-4 control-label" for="input-name">Services</label>
+											<div class="col-sm-8">
+												<a href="add-services-bill.phtml">
+													<button class="btn btn-primary" type="button" style="width: 180px;text-align: left;" data-toggle="tooltip" data-original-title="ADD Services Order" value="services-clear"><i class="fa fa-plus"></i> Add Services Order</button>
+												</a>
+											</div>
+										</div>
+										<div class="form-group">
+											<label class="col-sm-4 control-label" for="input-name">Services Product</label>
+											<div class="col-sm-8">
+												<a href="add-edit-services-product.phtml">
+													<button class="btn btn-primary" type="button" style="width: 180px;text-align: left;" data-toggle="tooltip" data-original-title="ADD Services Product" value="services-clear"><i class="fa fa-plus"></i> Add Services Product</button>
+												</a>
+											</div>
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+		</div>
+		
+		<!-- add js -->
+		<script src="js/jquery-3.2.1.min.js"></script>
+		<script src="js/bootstrap.min.js"></script>
+		<script src="js/jquery-ui.min.js"></script>
+		<script src="js/theme.js"></script>
+		<script src="js/common.js"></script>
+		<!-- For chart -->
+		<script type="text/javascript" src="js/Chart.min.js"></script>
+		<script type="text/javascript" src="js/linegraph.js"></script>
+	</body>
+</html>

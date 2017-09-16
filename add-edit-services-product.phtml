@@ -1,0 +1,108 @@
+<?php
+include('session.php');
+
+$menu[] = "catalog";
+$menu[] = "services-product";
+$title = "Add/Edit - Services Product";
+$product_count = 0;
+	if(isset($_GET['id'])){
+		$pro_id = $_GET['id'];
+		$sql = "SELECT * FROM services_product WHERE id=$pro_id";
+		$product_result = mysqli_query($db,$sql);
+		$product_detail = mysqli_fetch_array($product_result,MYSQLI_ASSOC);
+		//echo $order_detail['customer_name'];
+		//print_r($product_detail);exit;
+		$product_count = mysqli_num_rows($product_result);
+	}
+	if($_SERVER["REQUEST_METHOD"] == "POST") {
+		//print_r($_POST); exit;
+		// Get form details
+		$id = $_POST['id'];
+		$product_name = $_POST['product_name'];
+		
+		//echo $id;exit;
+		//print_r($products); exit;
+		if($id){
+			$sql = "UPDATE services_product SET product_name='".$product_name."', date_modified=Now() WHERE id=".$id;
+		}else{
+			//save customer details in sale order
+			$sql = "INSERT INTO services_product (product_name, date_added) VALUE ('".$product_name."', Now())";
+			
+			//$sql = "INSERT INTO bill_sale_order customer_name VALUE $customer_name";
+			//mysqli_query($db,$sql);
+			
+		}
+		if(mysqli_query($db, $sql)){		
+			header("location: services-product.phtml");
+		}else{
+			echo "Error ".mysqli_error($db); exit;
+		}
+		
+	}
+?>
+<html>
+	<?php include "head.php"; ?>
+	<body>
+		<div id="container">
+			<?php include 'header.php';?>
+			<?php include 'leftnav.php';?>
+			
+			
+			<div id="content">
+				<div class="page-header">
+					<div class="container-fluid">
+						<div class="pull-right">
+							<button type="submit" form="form-category" data-toggle="tooltip" title="" class="btn btn-primary" data-original-title="Save Product"><i class="fa fa-save"></i></button>
+							<a href="services-product.phtml" data-toggle="tooltip" title="" class="btn btn-default" data-original-title="Cancel"><i class="fa fa-reply"></i></a>
+						</div>
+						<h1>Add Services Billing</h1>
+						<ul class="breadcrumb">
+							<li><a href="">Home</a></li>
+							<li><a href="">Add Services Billing</a></li>
+						</ul>
+					</div>
+				</div>
+				<div class="container-fluid">
+					<div class="panel panel-default">
+						<div class="panel-heading">
+							<h3 class="panel-title"><i class="fa fa-pencil"></i> Add Services Product</h3>
+						</div>
+						<div class="panel-body">
+							<form action="add-edit-services-product.phtml" method="post" enctype="multipart/form-data" id="form-add-sales">
+								<ul class="nav nav-tabs">
+									<li class="active"><a href="#tab-product" data-toggle="tab" aria-expanded="true">Product</a></li>
+								</ul>
+								<div class="tab-content">
+									<div class="tab-pane active" id="tab-product">
+										<div class="tab-content">											
+											<div class="form-group required">
+												<label class="col-sm-2 control-label" for="input-name">Product Name</label>
+												<div class="col-sm-10">
+													<?php if($product_count): ?>
+														<input type="text" name="product_name" value="<?php echo $product_detail['product_name']; ?>" placeholder="Product Name" id="input-name1" class="form-control">
+													<?php else: ?>
+														<input type="text" name="product_name" value="" placeholder="Product Name" id="input-name1" class="form-control">
+													<?php endif; ?>
+													<input type="hidden" name="id" value="<?php if(isset($_GET['id'])){echo $_GET['id']; } ?>" />
+												</div>
+											</div>
+										</div>
+									</div>
+								</div>
+							</form>
+						</div>
+					</div>
+				</div>
+			
+			
+			
+		</div>
+		
+		<!-- add js -->
+		<script src="js/jquery-3.2.1.min.js"></script>
+		<script src="js/bootstrap.min.js"></script>
+		<script src="js/jquery-ui.min.js"></script>
+		<script src="js/theme.js"></script>
+		<script src="js/common.js"></script>
+	</body>
+</html>

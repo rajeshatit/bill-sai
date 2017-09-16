@@ -1,0 +1,247 @@
+<?php
+include('session.php');
+
+$menu[] = "setting";
+$menu[] = "back-up";
+$title = "Setting - BackUp";
+
+$info['success'] = 0;
+$info['error'] = 0;
+
+//header function
+function download_send_headers($filename) {
+	// disable caching
+	$now = gmdate("D, d M Y H:i:s");
+	header("Expires: Tue, 03 Jul 2001 06:00:00 GMT");
+	header("Cache-Control: max-age=0, no-cache, must-revalidate, proxy-revalidate");
+	header("Last-Modified: {$now} GMT");
+
+	// force download  
+	header("Content-Type: application/force-download");
+	header("Content-Type: application/octet-stream");
+	header("Content-Type: application/download");
+
+	// disposition / encoding on response body
+	header("Content-Disposition: attachment;filename={$filename}");
+	header("Content-Transfer-Encoding: binary");
+}
+
+//Array to CSV
+function array2csv(array $array)
+{
+	if (count($array) == 0) {
+		return null;
+	}
+	ob_start();
+	$df = fopen("php://output", 'w');
+	fputcsv($df, array_keys(reset($array)));
+	foreach ($array as $row) {
+		fputcsv($df, $row);
+	}
+	fclose($df);
+	return ob_get_clean();
+}
+
+if($_SERVER["REQUEST_METHOD"] == "POST") {
+	if(isset($_POST['export_action'])){
+		if($_POST['export_action']=='sales-export' || $_POST['export_action']=='services-export' ){
+			$order_table = 'bill_sale_order';
+			$product_table = 'bill_sale_product_order';
+			$invoice_no = 'Sales Invoice No.';
+			$prefix = 'SA';
+			$where = "";
+			$file_name = 'sales_data_export_'.date("Y-m-d");
+			if($_POST['sale_condition']['from'] && $_POST['sale_condition']['to'] ){
+				//echo date('Y-m-d',strtotime($_POST['sale_condition']['from'])); die();
+				$where = " WHERE s.date_added >= '".date('Y-m-d',strtotime($_POST['sale_condition']['from']))." 00:00:00' AND  s.date_added <=  '".date('Y-m-d',strtotime($_POST['sale_condition']['to']))." 23:59:59'";
+			$file_name = 'sales_data_export_'.$_POST['sale_condition']['from'].'-'.$_POST['sale_condition']['to'];
+			}
+			if($_POST['export_action']=='services-export'){
+				$order_table = 'bill_service_order';
+				$product_table = 'bill_service_product_order';
+				$invoice_no = 'Services Invoice No.';
+				$prefix = 'SE';
+				$file_name = 'services_data_export_'.date("Y-m-d");
+				if($_POST['services_condition']['from'] && $_POST['services_condition']['to'] ){
+					$where = " WHERE s.date_added >= '".date('Y-m-d',strtotime($_POST['services_condition']['from']))." 00:00:00' AND  s.date_added <=  '".date('Y-m-d',strtotime($_POST['services_condition']['to']))." 23:59:59'";
+					$file_name = 'services_data_export_'.$_POST['services_condition']['from'].'-'.$_POST['services_condition']['to'];
+				}
+			}
+			
+			$sql = "SELECT s.id AS order_id, s.customer_name as customer_name, s.address as address, s.city AS city, s.vehicle_make AS vehicle_make, s.vehicle_no AS vehicle_no, s.phone AS phone, s.email AS email, GROUP_CONCAT(p.product_name SEPARATOR ', ') AS product_name, GROUP_CONCAT(p.qty SEPARATOR ', ') AS qty, GROUP_CONCAT(p.price SEPARATOR ', ') AS price, GROUP_CONCAT(p.total SEPARATOR ', ') AS total ,s.sub_total AS sub_total, s.vat_percent AS vat_percent, s.vat_amount AS vat_amount, s.round_off AS round_off, s.grand_total AS grand_total, s.date_added AS date_added 
+				FROM $order_table s
+				JOIN $product_table p ON p.sale_id=s.id";
+			if($where){
+				$sql .= $where;
+			}
+			$sql .= " GROUP BY s.id ORDER BY s.date_added ASC";
+			//echo $sql; die();
+			$result = mysqli_query($db,$sql);
+			$array[] = array($invoice_no,'Customer Name','Address','City','Vehicle Make','Vehicle No.','Phone No.','Email','Product Name','Qty','Price','Product Total','Subtotal','VAT Percent','Vat Amount','Round Off','Ground Total','Purchase Date');
+			while($row = mysqli_fetch_assoc($result)){
+				$array[] = array(
+					$prefix.$row['order_id'],
+					$row['customer_name'],
+					$row['address'],
+					$row['city'],
+					$row['vehicle_make'],
+					$row['vehicle_no'],
+					$row['phone'],
+					$row['email'],
+					$row['product_name'],
+					$row['qty'],
+					$row['price'],
+					$row['total'],
+					$row['sub_total'],
+					$row['vat_percent'],
+					$row['vat_amount'],
+					$row['round_off'],
+					$row['grand_total'],
+					$row['date_added']
+				);
+			}
+			//print_r($array);exit;
+			//export data
+			download_send_headers($file_name . ".csv");
+			echo array2csv($array);
+			die();
+			
+		}
+	}
+	if(isset($_POST['clear_action'])){
+		if($_POST['clear_action']=='sales-clear' || $_POST['clear_action']=='services-clear' ){
+			$order_table = 'bill_sale_order';
+			$product_table = 'bill_sale_product_order';
+			if($_POST['clear_action']=='services-clear'){
+				$order_table = 'bill_service_order';
+				$product_table = 'bill_service_product_order';
+			}
+			$sql = 'DELETE FROM '.$order_table;
+			$sql1 = 'DELETE FROM '.$product_table;
+			$sql2 = 'ALTER TABLE '.$order_table.' AUTO_INCREMENT=1';
+			$sql3 = 'ALTER TABLE '.$product_table.' AUTO_INCREMENT=1';
+			if (mysqli_query($db, $sql) && mysqli_query($db, $sql1)) {
+				$success = "Record deleted successfully";
+				if(mysqli_query($db, $sql2) && mysqli_query($db, $sql3)){
+					$success .= " Database Truncate";
+				}
+				$info['success'] = $success;
+				//header("location: setting-backup.phtml");
+			} else {
+				$info['error'] = "Error deleting record: " . mysqli_error($db);
+			}
+		}
+	}
+	unset($_SERVER);
+}
+
+
+/**
+//Download function
+download_send_headers("data_export_" . date("Y-m-d") . ".csv");
+echo array2csv($array);
+die();
+**/
+?>
+<html>
+	<?php include "head.php"; ?>
+	<body>
+		<div id="container">
+			<?php include 'header.php';?>
+			<?php include 'leftnav.php';?>
+			
+			
+			<div id="content">
+				<div class="page-header">
+					<div class="container-fluid">
+						<!--div class="pull-right">
+							<button type="submit" form="form-category" data-toggle="tooltip" title="" class="btn btn-primary" data-original-title="Save Settings"><i class="fa fa-save"></i></button>
+							<a href="manage-sales.phtml" data-toggle="tooltip" title="" class="btn btn-default" data-original-title="Cancel"><i class="fa fa-reply"></i></a>
+						</div-->
+						<h1>Setting</h1>
+						<ul class="breadcrumb">
+							<li><a href="">Home</a></li>
+							<li><a href="">Setting</a></li>
+						</ul>
+					</div>
+				</div>
+				<div class="container-fluid">
+					<?php if($info['success']): ?>
+						<div class="alert alert-success">
+							<i class="fa fa-check-circle"></i> 
+							<?php echo $info['success']; ?>      
+							<button type="button" class="close" data-dismiss="alert">×</button>
+						</div>
+					<?php $info['success']=0; endif; ?>
+					<?php if($info['error']): ?>
+						<div class="alert alert-danger">
+							<i class="fa fa-times-circle"></i> 
+							<?php echo $info['error']; ?>      
+							<button type="button" class="close" data-dismiss="alert">×</button>
+						</div>
+					<?php $info['error']=0; endif; ?>
+					<div class="panel panel-default">
+						<div class="panel-heading">
+							<h3 class="panel-title"><i class="fa fa-pencil"></i> Setting - BackUp</h3>
+						</div>
+						<div class="panel-body">
+							<form action="setting-backup.phtml" method="post" enctype="multipart/form-data" id="form-add-sales">
+								<ul class="nav nav-tabs">
+									<li class="active"><a href="#tab-setting" data-toggle="tab" aria-expanded="true">Setting</a></li>
+								</ul>
+								<div class="tab-content">
+									<div class="tab-pane active" id="tab-setting">
+										<div class="tab-content">
+											
+											<div class="form-group">
+												<label class="col-sm-2 control-label" for="input-vat">Sales</label>
+												<div class="col-sm-2">
+													<input id="datepicker1" placeholder="From" name="sale_condition[from]"/>
+												</div>
+												<div class="col-sm-2">
+													<input id="datepicker2" placeholder="TO" name="sale_condition[to]"/>
+												</div>
+												<div class="col-sm-2">
+													<button class="btn btn-primary" name="export_action" type="submit" data-toggle="tooltip" data-original-title="Export Sales" value="sales-export"><i class="fa fa-download"></i> Export</button>
+												</div>
+												<div class="col-sm-8">
+													<button class="btn btn-default" name="clear_action" type="submit" data-toggle="tooltip" data-original-title="Clear Sales" value="sales-clear"><i class="fa fa-trash-o"></i> Clear</button>
+												</div>
+											</div>
+											<div class="form-group">
+												<label class="col-sm-2 control-label" for="select-sales">Services</label>
+												<div class="col-sm-2">
+													<input id="datepicker3" placeholder="From" name="services_condition[from]"/>
+												</div>
+												<div class="col-sm-2">
+													<input id="datepicker4" placeholder="TO" name="services_condition[to]"/>
+												</div>
+												<div class="col-sm-2">
+													<button class="btn btn-primary" type="submit" name="export_action" data-toggle="tooltip" data-original-title="Export Services" value="services-export"><i class="fa fa-download"></i> Export</button>
+												</div>
+												<div class="col-sm-8">
+													<button class="btn btn-default" type="submit" name="clear_action" data-toggle="tooltip" data-original-title="Clear Services" value="services-clear"><i class="fa fa-trash-o"></i> Clear</button>
+												</div>
+											</div>
+										</div>
+									</div>
+								</div>
+							</form>
+						</div>
+					</div>
+				</div>
+			
+			
+			
+		</div>
+		
+		<!-- add js -->
+		
+		
+		<script src="js/jquery-3.2.1.min.js"></script>
+		<script src="js/bootstrap.min.js"></script>
+		<script src="js/jquery-ui.min.js"></script>
+		<script src="js/theme.js"></script>
+		<script src="js/common.js"></script>
+	</body>
+</html>
