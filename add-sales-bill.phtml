@@ -4,244 +4,287 @@ $info['success'] = $info['error'] = 0;
 $menu[] = "sales";
 $menu[] = "sales-bill";
 $title = "Manage - Sales Billing";
-	if($_SERVER["REQUEST_METHOD"] == "POST") {
-		//print_r($_POST); die;
-		// Get form details
-		$customer_name = $_POST['customer_name'];
-		$address = $_POST['address']; 
-		$city = ''; 
-		$vehicle_make = $_POST['vehicle_make']; 
-		$vehicle_no = $_POST['vehicle_no']; 
-		$phone = $_POST['phone']; 
-		$email = $_POST['email']; 
-		$products = $_POST['product']; 
-		
-				
-		//echo $custome_name;exit;
-		//print_r($products); exit;
-		
-		//save customer details in sale order
-		$sql = "INSERT INTO bill_sale_order (customer_name, address, city, vehicle_make, vehicle_no, phone, email, date_added) VALUE ('".$customer_name."', '".$address."', '".$city."', '".$vehicle_make."', '".$vehicle_no."', '".$phone."', '".$email."', Now())";
-		//$sql = "INSERT INTO bill_sale_order customer_name VALUE $customer_name";
-		//mysqli_query($db,$sql);
-		if (!mysqli_query($db,$sql))
-		{
-			echo $info['error'] = "Error description: " . mysqli_error($db);
-			exit;
-		}
-		$sale_id = mysqli_insert_id($db);
-		//echo $sale_id; exit;
-		$sub_total = 0;
-		//Product details
-		foreach($products as $product){
-			if($product['name'] && $product['price'] && $product['qty']){
-				$product_total = 0;
-				$product_total = (float)$product['price'] * (int)$product['qty'];
-				$product_total = number_format((float)$product_total, 2, '.', '');
-				$sql = "INSERT INTO bill_sale_product_order (sale_id, product_name, qty, price, total, date_added) VALUE ($sale_id, '".$product['name']."', ".$product['qty'].", '".$product['price']."', '".$product_total."', Now())";
-				mysqli_query($db,$sql);
-				$sub_total += $product_total;
-			}
-		}
-		
-		$contents = array('sale_vat','sales_type');
-		$value = array();
-		foreach($contents as $key){
-			$sql = "SELECT value FROM setting WHERE attribute = '$key'";
-			$result = mysqli_query($db,$sql);
-			$row = mysqli_fetch_array($result,MYSQLI_ASSOC);
-			$value[$key] = $row['value'];
-		}
-		if(!$value['sale_vat']){
-			$value['sale_vat'] = 28;
-		}
-		if(!$value['sales_type']){
-			$value['sales_type'] = 'include';
-		}
-		$grand_total = '';
-		$vat_percent = (float)$value['sale_vat'];
-		$vat_amount = $sub_total *($vat_percent/100);
-		$vat_amount = number_format((float)$vat_amount, 2, '.', '');
-		if($value['sales_type']=='exclude'){
-			$grand_total = (float)$sub_total + (float)$vat_amount;
-		}
-		if($value['sales_type']=='include'){
-			$sub_total = (float)$sub_total - (float)$vat_amount;
-			$grand_total = (float)$sub_total + (float)$vat_amount;
-		}
-		if($value['sales_type']=='none'||$value['sales_type']==''){
-			$grand_total = $sub_total;
-			$vat_amount = 0;
-			$value['sale_vat'] = 0;
-		}
-		
-		//round off
-		$round_off = 0;
-		if(is_float($grand_total)){
-			$temp = $grand_total;
-			$grand_total = round($grand_total);
-			$round_off = $grand_total - $temp;
-		}		
-		
-		$sql = "UPDATE bill_sale_order SET sub_total='".$sub_total."', vat_percent='".$value['sale_vat']."', vat_amount='".$vat_amount."', round_off='".$round_off."', grand_total='".$grand_total."' WHERE id=".$sale_id;
-		if(mysqli_query($db, $sql)){		
-			header("location: view_sales_bill_table.phtml?sale=$sale_id");
-		}else{
-			$info['error'] = "Error Saving Problem".mysqli_error($db); exit;
-		}
-		
-		
-	}
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    //print_r($_POST); die;
+    // Get form details
+    $customer_name = $_POST['customer_name'];
+    $address = $_POST['address'];
+    $city = '';
+    $vehicle_make = $_POST['vehicle_make'];
+    $vehicle_no = $_POST['vehicle_no'];
+    $phone = $_POST['phone'];
+    $email = $_POST['email'];
+    $products = $_POST['product'];
+//    echo $_POST['id'];exit;
+    //print_r($products); exit;
+    //save customer details in sale order
+    if($_POST['id']){
+        $sql = "UPDATE bill_sale_order SET customer_name = '" . $customer_name . "',address = '" . $address . "',city = '" . $city . "',vehicle_make = '" . $vehicle_make . "', vehicle_no = '" . $vehicle_no . "', phone = '" . $phone . "', email = '" . $email . "',date_modified = Now() WHERE id=" . $_POST['id'];
+    }  else {
+        $sql = "INSERT INTO bill_sale_order (customer_name, address, city, vehicle_make, vehicle_no, phone, email, date_added) VALUE ('" . $customer_name . "', '" . $address . "', '" . $city . "', '" . $vehicle_make . "', '" . $vehicle_no . "', '" . $phone . "', '" . $email . "', Now())";
+    }
+    //$sql = "INSERT INTO bill_sale_order customer_name VALUE $customer_name";
+    //mysqli_query($db,$sql);
+    if (!mysqli_query($db, $sql)) {
+        echo $info['error'] = "Error description: " . mysqli_error($db);
+        exit;
+    }
+    if($_POST['id']){
+        $sale_id = $_POST['id'];
+        $sql = "DELETE FROM bill_sale_product_order WHERE sale_id = ".$sale_id;
+        if (!mysqli_query($db, $sql)) {
+            echo $info['error'] = "Error description: " . mysqli_error($db);
+            exit;
+        }
+    }  else {
+        $sale_id = mysqli_insert_id($db);
+    }
+    //echo $sale_id; exit;
+    $sub_total = 0;
+    //Product details
+    foreach ($products as $product) {
+        if ($product['name'] && $product['price'] && $product['qty']) {
+            $product_total = 0;
+            $product_total = (float) $product['price'] * (int) $product['qty'];
+            $product_total = number_format((float) $product_total, 2, '.', '');
+            $sql = "INSERT INTO bill_sale_product_order (sale_id, product_name, qty, price, total, date_added) VALUE ($sale_id, '" . $product['name'] . "', " . $product['qty'] . ", '" . $product['price'] . "', '" . $product_total . "', Now())";
+            mysqli_query($db, $sql);
+            $sub_total += $product_total;
+        }
+    }
+
+    $contents = array('sale_vat', 'sales_type');
+    $value = array();
+    foreach ($contents as $key) {
+        $sql = "SELECT value FROM setting WHERE attribute = '$key'";
+        $result = mysqli_query($db, $sql);
+        $row = mysqli_fetch_array($result, MYSQLI_ASSOC);
+        $value[$key] = $row['value'];
+    }
+    if (!$value['sale_vat']) {
+        $value['sale_vat'] = 28;
+    }
+    if (!$value['sales_type']) {
+        $value['sales_type'] = 'include';
+    }
+    $grand_total = '';
+    $vat_percent = (float) $value['sale_vat'];
+    $vat_amount = $sub_total * ($vat_percent / 100);
+    $vat_amount = number_format((float) $vat_amount, 2, '.', '');
+    if ($value['sales_type'] == 'exclude') {
+        $grand_total = (float) $sub_total + (float) $vat_amount;
+    }
+    if ($value['sales_type'] == 'include') {
+        $sub_total = (float) $sub_total - (float) $vat_amount;
+        $grand_total = (float) $sub_total + (float) $vat_amount;
+    }
+    if ($value['sales_type'] == 'none' || $value['sales_type'] == '') {
+        $grand_total = $sub_total;
+        $vat_amount = 0;
+        $value['sale_vat'] = 0;
+    }
+
+    //round off
+    $round_off = 0;
+    if (is_float($grand_total)) {
+        $temp = $grand_total;
+        $grand_total = round($grand_total);
+        $round_off = $grand_total - $temp;
+    }
+
+    $sql = "UPDATE bill_sale_order SET sub_total='" . $sub_total . "', vat_percent='" . $value['sale_vat'] . "', vat_amount='" . $vat_amount . "', round_off='" . $round_off . "', grand_total='" . $grand_total . "' WHERE id=" . $sale_id;
+    if (mysqli_query($db, $sql)) {
+        header("location: view_sales_bill_table.phtml?sale=$sale_id");
+    } else {
+        $info['error'] = "Error Saving Problem" . mysqli_error($db);
+        exit;
+    }
+}
+$order_detail = $product_result = array();
+$product_count = 0;
+if($_GET['id']){
+    // Order Details
+    $order_id = $_GET['id'];
+    $sql = "SELECT * FROM bill_sale_order WHERE id=$order_id";
+    $order_result = mysqli_query($db,$sql);
+    $order_detail = mysqli_fetch_array($order_result,MYSQLI_ASSOC);
+    $order_count = mysqli_num_rows($order_result);
+    
+    //Product Details
+    $sql = "SELECT * FROM bill_sale_product_order WHERE sale_id=$order_id";
+    $product_result = mysqli_query($db,$sql);
+    $product_count = mysqli_num_rows($product_result);
+}
 ?>
 <html>
-	<?php include "head.php"; ?>
-	<body>
-		<div id="container">
-			<?php include 'header.php';?>
-			<?php include 'leftnav.php';?>
-			
-			
-			<div id="content">
-				<div class="page-header">
-					<div class="container-fluid">
-						<div class="pull-right">
-							<button type="submit" form="form-category" data-toggle="tooltip" title="" class="btn btn-primary" data-original-title="Create Bill"><i class="fa fa-save"></i></button>
-							<a href="manage-sales.phtml" data-toggle="tooltip" title="" class="btn btn-default" data-original-title="Cancel"><i class="fa fa-reply"></i></a>
-						</div>
-						<h1>Add Sales Billing</h1>
-						<ul class="breadcrumb">
-							<li><a href="">Home</a></li>
-							<li><a href="">Add Sales Billing</a></li>
-						</ul>
-					</div>
-				</div>
-				<div class="container-fluid">
-					<?php if($info['success']): ?>
-						<div class="alert alert-success">
-							<i class="fa fa-check-circle"></i> 
-							<?php echo $info['success']; ?>      
-							<button type="button" class="close" data-dismiss="alert">×</button>
-						</div>
-					<?php $info['success']=0; endif; ?>
-					<?php if($info['error']): ?>
-						<div class="alert alert-danger">
-							<i class="fa fa-times-circle"></i> 
-							<?php echo $info['error']; ?>      
-							<button type="button" class="close" data-dismiss="alert">×</button>
-						</div>
-					<?php $info['error']=0; endif; ?>
-					<div class="panel panel-default">
-						<div class="panel-heading">
-							<h3 class="panel-title"><i class="fa fa-pencil"></i> Add Category</h3>
-						</div>
-						<div class="panel-body">
-							<form action="add-sales-bill.phtml" method="post" enctype="multipart/form-data" id="form-add-sales">
-								<ul class="nav nav-tabs">
-									<li class="active"><a href="#tab-customer" data-toggle="tab" aria-expanded="true">Customer</a></li>
-									<li class=""><a href="#tab-product" data-toggle="tab" aria-expanded="false">Product</a></li>
-								</ul>
-								<div class="tab-content">
-									<div class="tab-pane active" id="tab-customer">
-										<div class="tab-content">
-											
-											<div class="form-group required">
-												<label class="col-sm-2 control-label" for="input-name">Customer Name</label>
-												<div class="col-sm-10">
-													<input type="text" name="customer_name" value="" placeholder="Customer Name" id="input-name1" class="form-control">
-												</div>
-											</div>
-											<div class="form-group required">
-												<label class="col-sm-2 control-label" for="input-address">Address</label>
-												<div class="col-sm-10">
-													<textarea name="address" rows="5" placeholder="Address" id="input-meta-address" class="form-control"></textarea>
-												</div>
-											</div>
-											<!--div class="form-group">
-												<label class="col-sm-2 control-label" for="input-city">City</label>
-												<div class="col-sm-10">
-													<input type="text" name="city" value="" placeholder="City" id="input-city" class="form-control">
-												</div>
-											</div-->
-											<div class="form-group">
-												<label class="col-sm-2 control-label" for="input-vehicle-make">Vehicle Make</label>
-												<div class="col-sm-10">
-													<input type="text" name="vehicle_make" value="" placeholder="Vehicle Make" id="input-vehicle-make" class="form-control">
-												</div>
-											</div>
-											<div class="form-group">
-												<label class="col-sm-2 control-label" for="input-kilometer">Kilometer</label>
-												<div class="col-sm-10">
-													<input type="text" name="city" value="" placeholder="Kilometer" id="input-kilometer" class="form-control">
-												</div>
-											</div>
-											<div class="form-group">
-												<label class="col-sm-2 control-label" for="input-vehicle-no">Vehicle No.</label>
-												<div class="col-sm-10">
-													<input type="text" name="vehicle_no" value="" placeholder="Vehicle No" id="input-vehicle-no" class="form-control">
-												</div>
-											</div>
-											<div class="form-group">
-												<label class="col-sm-2 control-label" for="input-phone">Phone</label>
-												<div class="col-sm-10">
-													<input type="text" name="phone" value="" placeholder="Phone" id="input-phone" class="form-control">
-												</div>
-											</div>
-											<div class="form-group">
-												<label class="col-sm-2 control-label" for="input-e-mail">E-mail</label>
-												<div class="col-sm-10">
-													<input type="text" name="email" value="" placeholder="E-mail" id="input-mail" class="form-control">
-												</div>
-											</div>
-										
-										</div>
-									</div>
-									
-									<div class="tab-pane" id="tab-product">
-										<div class="tab-content">
-											<div class="pull-right">
-												<span class="btn btn-primary add-new-product" data-toggle="tooltip" title="Add New Product" data-original-title="Add New Product"><i class="fa fa-plus"></i></span>
-											</div>
-											<h4>Product Details</h4>
-											<div class="table-responsive">
-												<table class="table-product-details-info table table-bordered table-hover">
-													<thead>
-														<tr>
-															<td style="width: 1px;" class="text-center">S.No.</td>
-															<td class="text-left">Product Name</td>
-															<td class="text-right">Qty</td>
-															<td class="text-right">Unit Price</td>
-														</tr>
-													</thead>
-													<tbody>
-														<tr class="add-new-row-next">
-															<td class="text-center">
-																1
-															</td>
-															<td class="text-left"><input type="text" class="product_name" name="product[0][name]" value="" /></td>
-															<td class="text-right"><input type="number" name="product[0][qty]" value="" /></td>
-															<td class="text-right"><input type="number" name="product[0][price]" value="" /></td>
-														</tr>
-													</tbody>
-												</table>
-											</div>
-										
-										</div>
-									</div>
-								</div>
-							</form>
-						</div>
-					</div>
-				</div>
-			
-			
-			
-		</div>
-		
-		<!-- add js -->
-		<script src="js/jquery-3.2.1.min.js"></script>
-		<script src="js/bootstrap.min.js"></script>
-		<script src="js/jquery-ui.min.js"></script>
-		<script src="js/theme.js"></script>
-		<script src="js/common.js"></script>
-	</body>
+    <?php include "head.php"; ?>
+    <body>
+        <div id="container">
+            <?php include 'header.php'; ?>
+            <?php include 'leftnav.php'; ?>
+            <div id="content">
+                <div class="page-header">
+                    <div class="container-fluid">
+                        <div class="pull-right">
+                            <button type="submit" form="form-category" data-toggle="tooltip" title="" class="btn btn-primary" data-original-title="Create Bill"><i class="fa fa-save"></i></button>
+                            <a href="manage-sales.phtml" data-toggle="tooltip" title="" class="btn btn-default" data-original-title="Cancel"><i class="fa fa-reply"></i></a>
+                        </div>
+                        <h1><?php if($_GET['id']) echo 'Edit Sales Billing'; else echo 'Add Sales Billing';  ?></h1>
+                        <ul class="breadcrumb">
+                            <li><a href="">Home</a></li>
+                            <li><a href=""><?php if($_GET['id']) echo 'Edit Sales Billing'; else echo 'Add Sales Billing';  ?></a></li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="container-fluid">
+                    <?php if ($info['success']): ?>
+                        <div class="alert alert-success">
+                            <i class="fa fa-check-circle"></i> 
+                            <?php echo $info['success']; ?>      
+                            <button type="button" class="close" data-dismiss="alert">×</button>
+                        </div>
+                        <?php $info['success'] = 0;
+                    endif;
+                    ?>
+<?php if ($info['error']): ?>
+                        <div class="alert alert-danger">
+                            <i class="fa fa-times-circle"></i> 
+    <?php echo $info['error']; ?>      
+                            <button type="button" class="close" data-dismiss="alert">×</button>
+                        </div>
+                        <?php $info['error'] = 0;
+                    endif;
+                    ?>
+                    <div class="panel panel-default">
+                        <div class="panel-heading">
+                            <h3 class="panel-title"><i class="fa fa-pencil"></i> Add Details</h3>
+                        </div>
+                        <div class="panel-body">
+                            <form action="add-sales-bill.phtml" method="post" enctype="multipart/form-data" id="form-add-sales">
+                                <input type="hidden" value="<?php echo $_GET['id']; ?>" name="id"/>
+                                <ul class="nav nav-tabs">
+                                    <li class="active"><a href="#tab-customer" data-toggle="tab" aria-expanded="true">Customer</a></li>
+                                    <li class=""><a href="#tab-product" data-toggle="tab" aria-expanded="false">Product</a></li>
+                                </ul>
+                                <div class="tab-content">
+                                    <div class="tab-pane active" id="tab-customer">
+                                        <div class="tab-content">
+
+                                            <div class="form-group required">
+                                                <label class="col-sm-2 control-label" for="input-name">Customer Name</label>
+                                                <div class="col-sm-10">
+                                                    <input type="text" name="customer_name" value="<?php echo $order_detail['customer_name']; ?>" placeholder="Customer Name" id="input-name1" class="form-control">
+                                                </div>
+                                            </div>
+                                            <div class="form-group required">
+                                                <label class="col-sm-2 control-label" for="input-address">Address</label>
+                                                <div class="col-sm-10">
+                                                    <textarea name="address" rows="5" placeholder="Address" id="input-meta-address" class="form-control"><?php echo $order_detail['address']; ?></textarea>
+                                                </div>
+                                            </div>
+                                            <!--div class="form-group">
+                                                    <label class="col-sm-2 control-label" for="input-city">City</label>
+                                                    <div class="col-sm-10">
+                                                            <input type="text" name="city" value="" placeholder="City" id="input-city" class="form-control">
+                                                    </div>
+                                            </div-->
+                                            <div class="form-group">
+                                                <label class="col-sm-2 control-label" for="input-vehicle-make">Vehicle Make</label>
+                                                <div class="col-sm-10">
+                                                    <input type="text" name="vehicle_make" value="<?php echo $order_detail['vehicle_make']; ?>" placeholder="Vehicle Make" id="input-vehicle-make" class="form-control">
+                                                </div>
+                                            </div>
+                                            <div class="form-group">
+                                                <label class="col-sm-2 control-label" for="input-kilometer">Kilometer</label>
+                                                <div class="col-sm-10">
+                                                    <input type="text" name="city" value="<?php echo $order_detail['city']; ?>" placeholder="Kilometer" id="input-kilometer" class="form-control">
+                                                </div>
+                                            </div>
+                                            <div class="form-group">
+                                                <label class="col-sm-2 control-label" for="input-vehicle-no">Vehicle No.</label>
+                                                <div class="col-sm-10">
+                                                    <input type="text" name="vehicle_no" value="<?php echo $order_detail['vehicle_no']; ?>" placeholder="Vehicle No" id="input-vehicle-no" class="form-control">
+                                                </div>
+                                            </div>
+                                            <div class="form-group">
+                                                <label class="col-sm-2 control-label" for="input-phone">Phone</label>
+                                                <div class="col-sm-10">
+                                                    <input type="text" name="phone" value="<?php echo $order_detail['phone']; ?>" placeholder="Phone" id="input-phone" class="form-control">
+                                                </div>
+                                            </div>
+                                            <div class="form-group">
+                                                <label class="col-sm-2 control-label" for="input-e-mail">E-mail</label>
+                                                <div class="col-sm-10">
+                                                    <input type="text" name="email" value="<?php echo $order_detail['email']; ?>" placeholder="E-mail" id="input-mail" class="form-control">
+                                                </div>
+                                            </div>
+
+                                        </div>
+                                    </div>
+
+                                    <div class="tab-pane" id="tab-product">
+                                        <div class="tab-content">
+                                            <div class="pull-right">
+                                                <span class="btn btn-primary add-new-product" data-toggle="tooltip" title="Add New Product" data-original-title="Add New Product"><i class="fa fa-plus"></i></span>
+                                            </div>
+                                            <h4>Product Details</h4>
+                                            <div class="table-responsive">
+                                                <table class="table-product-details-info table table-bordered table-hover">
+                                                    <thead>
+                                                        <tr>
+                                                            <td style="width: 1px;" class="text-center">S.No.</td>
+                                                            <td class="text-left">Product Name</td>
+                                                            <td class="text-right">Qty</td>
+                                                            <td class="text-right">Unit Price</td>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        <?php $no_rows = 0; ?>
+                                                        <?php if($product_count):?>
+                                                            <?php while($product_detail = mysqli_fetch_assoc($product_result)): ?>
+                                                                <?php $no_rows++; ?>
+                                                                <tr class="<?php if($no_rows==$product_count) echo'add-new-row-next'; ?>">
+                                                                    <td class="text-center">
+                                                                        <?php echo $no_rows; ?>
+                                                                    </td>
+                                                                    <td class="text-left"><input type="text" class="product_name" name="product[<?php echo $no_rows - 1; ?>][name]" value="<?php echo $product_detail['product_name']; ?>" /></td>
+                                                                    <td class="text-right"><input type="number" name="product[<?php echo $no_rows - 1; ?>][qty]" value="<?php echo $product_detail['qty']; ?>" /></td>
+                                                                    <td class="text-right"><input type="number" name="product[<?php echo $no_rows - 1; ?>][price]" value="<?php echo $product_detail['price']; ?>" /></td>
+                                                                </tr>
+                                                            <?php endwhile; ?>
+                                                        <?php else: ?>
+                                                            <?php $no_rows = 1; ?>
+                                                            <tr class="add-new-row-next">
+                                                                <td class="text-center">
+                                                                    1
+                                                                </td>
+                                                                <td class="text-left"><input type="text" class="product_name" name="product[0][name]" value="" /></td>
+                                                                <td class="text-right"><input type="number" name="product[0][qty]" value="" /></td>
+                                                                <td class="text-right"><input type="number" name="product[0][price]" value="" /></td>
+                                                            </tr>
+                                                        <?php endif; ?>
+                                                    </tbody>
+                                                </table>
+                                                <input class="no_of_product_rows" type="hidden" value="<?php echo $no_rows; ?>" />
+                                            </div>
+
+                                        </div>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+
+
+            </div>
+        </div>
+        <!-- add js -->
+        <script src="js/jquery-3.2.1.min.js"></script>
+        <script src="js/bootstrap.min.js"></script>
+        <script src="js/jquery-ui.min.js"></script>
+        <script src="js/theme.js"></script>
+        <script src="js/common.js"></script>
+    </body>
 </html>
