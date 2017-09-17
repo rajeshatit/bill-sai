@@ -1,251 +1,256 @@
-<?php 
-
+<?php
 include('session.php');
 
 $title = "Print View";
 
 $sale = $_GET['sale'];
 $sql = "SELECT * FROM bill_sale_order WHERE id=$sale";
-$order_result = mysqli_query($db,$sql);
-$order_detail = mysqli_fetch_array($order_result,MYSQLI_ASSOC);
+$order_result = mysqli_query($db, $sql);
+$order_detail = mysqli_fetch_array($order_result, MYSQLI_ASSOC);
 //echo $order_detail['customer_name'];
 //print_r($order_detail);exit;
 $order_count = mysqli_num_rows($order_result);
 
 
 $sql = "SELECT * FROM bill_sale_product_order WHERE sale_id=$sale";
-$product_result = mysqli_query($db,$sql);
+$product_result = mysqli_query($db, $sql);
 $product_count = mysqli_num_rows($product_result);
 $vat_amount1 = $vat_amount2 = 0;
-if(!$order_detail['vat_percent']){
-	$order_detail['vat_percent'] = 28;
+if (!$order_detail['vat_percent']) {
+    $order_detail['vat_percent'] = 28;
 }
 ?>
 <html>
-	<?php include "head.php"; ?>
-	<body style="height: initial;width: 740px;margin: 5px;">
-		<?php if($order_count && $product_count): ?>
-			<table class="col-wid-100" style="border: 1px solid black;">
-				<tr>
-					<td class="col-wid-30" style="vertical-align: top;">
-						<table style="margin-top: 10px;">
-							<tr>
-								<td>
-									<div class="shop_title" style="text-align: center;">
-										<h4 class="">TAX INVOICE</h4>
-										<h6 class="">Cash/Credit</h6>
-										<img src="image/img.jpg" width="85%" title="Sri Sai Wheel Care"/>
-										<hr style="margin: 5px 0px;" />
-										<div>
-											<span style="line-height: 18px;display: inline-block;" class="">Sales</span>
-											<span style="line-height: 18px;display: inline-block;" class="left-line">Services</span>
-										</div>
-									</div>
-								</td>
-							</tr>
-							<tr>
-								<td>
-									<div class="address_details" style="text-align: center;">
-										<h5 style="font-weight: bold;padding: 8px;border-top: 2px solid black;border-bottom: 1px solid black;color: black;" class="print-title-office">OFFICE</h5>
-										<h4 style="font-family: lucidaHandwriting;font-size: 17px;color: #da2605;text-transform: uppercase;font-weight: bold;">Sri Sai Wheel Care</h4>
-										<p style="font-size: 13px;">No 13, 3rd mile, <br/>Arakkonam - Tiruttani Road, <br/>Thanigaipolur (Opp.Annai Timbers), <br/>Arakkonam - 631003, Tamil Nadu<br/> <b>Tel : </b>+91-952181410,9597881882 <br/><b>Mail : </b>srisaiwheelcare@gmail.com <br/><b>Web : </b>www.srisaiwheelcare.com <br/> <b>Tin : 33516291425</b><br/><b>C.S.T : 1140522</b><br/><b>GSTIN : 33AOSPM3611D1Z6</b></p>
-									</div>
-								</td>
-							</tr>
-						</table>
-					</td>
-					<td class="col-wid-70" style="border-left: 1px solid black;vertical-align: top;">
-						<table style="width: 100%;">
-							<tr>
-								<td class="col-wid-50" style="border-right: 1px solid black;vertical-align: top;padding-top: 8px;">
-									<div class="box-content text-left" style="padding-left: 5px;">
-										<h3 style="font-size: 13px;font-weight: bold;">SOLD TO:</h3>
-										<div class="customer_address" style="padding-left: 5px;">
-											<div style="font-size: 12px;margin-bottom: 2px;">
-												<?php echo $order_detail['customer_name']; ?><br/>
-												<?php echo $order_detail['address']; ?><br/>
-												<?php echo $order_detail['city']; ?>
-												<?php echo $order_detail['phone'].'</br>'; ?>
-												<?php echo $order_detail['vehicle_make'].'</br>'; ?>
-												<?php echo $order_detail['vehicle_no']; ?>
-											</div>									
-										</div>
-									</div>
-								</td>
-								<td class="col-wid-50" style="vertical-align: top;">
-									<div class="box-content text-left" style="width: 100%;">
-										<table class="table table-invoice-details" style="width: 100%;margin-bottom: -1px;">
-											<tr>
-												<td>INVOICE NO: </td>
-												<td><?php echo 'SA'.$order_detail['id']; ?></td>
-											</tr>
-											<tr>
-												<td>DATE: </td>
-												<td><?php echo date_format(new DateTime($order_detail['date_added']),"d-m-Y"); ?></td>
-											</tr>
-											<tr>
-												<td>REFERENCE: </td>
-												<td></td>
-											</tr>
-											<tr>
-												<td colspan=1>WAREHOUSE:</td>
-												<td colspan=3></td>
-											</tr>
-										</table>
-									</div>
-								</td>
-							</tr>
-							<tr>
-								<td colspan=2>
-									<div style="height: 290px;">
-										<table class="table table-print-view" style="width: 100%;margin-bottom: 10px;">
-											<thead>
-												<td class="text-center" style="width: 10%;padding-left: 2px;">S.NO.</td>
-												<td class="text-center" style="width: 40%;">DESCRIPTION</td>
-												<td class="text-center" style="width: 5%;">QTY</td>
-												<td class="text-right" style="width: 22%;">UNIT PRICE</td>
-												<td class="text-right" style="padding-right: 3px;">AMOUNT</td>
-											</thead>
-											<tbody style="">
-											<?php $addition_line = 0; ?>
-											<?php $i=1; ?>
-											<?php while($product_detail = mysqli_fetch_assoc($product_result)): ?>
-												<tr>
-													<td class="text-center" style="padding-left: 3px;"><?php echo $i; ?></td>
-													<td>
-														<?php echo $product_detail['product_name']; ?>
-														<?php 
-															if(strlen($product_detail['product_name'])>32){
-																$temp = (int)(strlen($product_detail['product_name']) / 30);
-																$addition_line += $temp;
-															}
-														?>
-													</td>
-													<td class="text-center"><?php echo $product_detail['qty']; ?></td>
-													<td class="text-right"><?php echo $product_detail['price']; ?></td>
-													<td class="text-right" style="padding-right: 4px;"><?php echo number_format((float)$product_detail['total'], 2, '.', ''); ?></td>
-												</tr>
-											<?php $i++; ?>
-											<?php endwhile; ?>
-											<?php 
-												$row = 4 - $i - $addition_line;
-												// create empty row
-												if($row):
-													for($a=0;$a<=$row;$a++):
-											?>
-													<tr class='empty-row'>
-															<td></td>
-															<td></td>
-															<td></td>
-															<td></td>
-															<td></td>
-													</tr>
-											<?php endfor;
-												endif; ?>
-											<tr>
-												<td></td>
-												<td class="text-right"><b>Sub-total(without tax)</b></td>
-												<td></td>
-												<td></td>
-												<td class="text-right"><b><?php echo $sub_total = number_format((float)$order_detail['sub_total'], 2, '.', ''); ?></b></td>
-											</tr>
-											<?php if($order_detail['vat_amount']): ?>
-												<tr>
-													<td></td>
-													<td class="text-right">SGST <?php echo $order_detail['vat_percent']/2 .'%';?></td>
-													<td></td>
-													<td></td>
-													<td class="text-right"><?php echo $vat_amount1 = number_format((float)$order_detail['vat_amount']/2 , 2, '.', ''); ?></td>
-												</tr>
-												<tr>
-													<td></td>
-													<td class="text-right">CGST <?php echo $order_detail['vat_percent']/2 .'%';?></td>
-													<td></td>
-													<td></td>
-													<td class="text-right"><?php echo $vat_amount2 = number_format((float)$order_detail['vat_amount']/2 , 2, '.', ''); ?></td>
-												</tr>
-											<?php endif; ?>
-											<?php 
-												$round_off = round($order_detail['grand_total'])-($sub_total+$vat_amount1+$vat_amount2);
-												if($round_off != 0):
-											?>
-												<tr>
-													<td></td>
-													<td class="text-right">Round Off</td>
-													<td></td>
-													<td></td>
-													<td class="text-right">
-														<?php 
-															$round_off = round($order_detail['grand_total'])-($sub_total+$vat_amount1+$vat_amount2);
-															$sign = '+';
-															if($round_off <= 0){
-																$sign = '-';
-																$round_off = abs($round_off);
-															}
-															echo "(".$sign.")".number_format((float)$round_off, 2, '.', '');
-														?>
-														
-													</td>
-												</tr>
-											<?php endif; ?>
-											</tbody>
-											<tfoot style="border-bottom: 1px solid black;">
-												<td></td>
-												<td></td>
-												<td></td>
-												<td style="width: 22%;font-weight:bold;" class="text-right">Total</td>
-												<td class="text-right" style="padding-right: 4px;font-weight:bold;"><?php echo number_format((float)round($order_detail['grand_total']), 2, '.', ''); ?></td>
-											</tfoot>
-										</table>
-									</div>
-								</td>
-							</tr>
-							<tr style="height: 60px;vertical-align: bottom;font-size: 15px;">
-								<td style="padding-left: 5px;">RECEIVER'S SIGNATURE</td>
-								<td style="text-align: right;padding-right: 5px;">For Sri Sai Wheel Care</td>
-							</tr>
-						</table>
-					</td>
-				</tr>
-			</table>
-			<table class="col-wid-100 footer-logo" style="border: 1px solid black;border-top: 0px;">
-				<tr>
-					<td>
-						<img src="image/footer/bridgestone.jpg" style="width: 125px;" />
-					</td>
-					<td>
-						<img src="image/footer/apollo.png" style="width: 88px;" />
-					</td>
-					<td>
-						<img src="image/footer/mobil-1.jpg" style="width: 100px;" />
-					</td>
-					<td>
-						<img src="image/footer/3m.jpg" />
-					</td>					
-					<td>
-						<img src="image/footer/bosch.jpg" style="width: 120px;" />
-					</td>
-					<td>
-						<img src="image/footer/skf.gif" style="width: 67px;" />
-					</td>
-					<td>
-						<img src="image/footer/tvs.png" />
-					</td>
-				</tr>
-			</table>
-			<div class="control-group" style="margin: 10px;height: initial;">
-				<div class="text-right">
-					<button class="btn btn-primary" type="button" onclick="myPrintFunction()"><i class="fa fa-print"></i> Print</button>
-					<a href="manage-sales.phtml">
-						<button class="btn btn-default" type="button"><i class="fa fa-reply"></i> Back</button>
-					</a>
-				</div>
-			</div>
-		<?php else: ?>
-			<p class="text-center"> Sorry Order details has been found! </p>
-		<?php endif; ?>
-		<!-- add js -->
-		<script src="js/jquery-3.2.1.min.js"></script>
-		<script src="js/theme.js"></script>
-	</body>
+    <?php include "head.php"; ?>
+    <body style="height: initial;width: 740px;margin: 5px;">
+        <?php if ($order_count && $product_count): ?>
+            <table class="col-wid-100" style="border: 1px solid black;">
+                <tr>
+                    <td class="col-wid-30" style="vertical-align: top;">
+                        <table style="margin-top: 10px;">
+                            <tr>
+                                <td>
+                                    <div class="shop_title" style="text-align: center;">
+                                        <h4 class="">TAX INVOICE</h4>
+                                        <h6 class="">Cash/Credit</h6>
+                                        <img src="image/img.jpg" width="85%" title="Sri Sai Wheel Care"/>
+                                        <hr style="margin: 5px 0px;" />
+                                        <div>
+                                            <span style="line-height: 18px;display: inline-block;" class="">Sales</span>
+                                            <span style="line-height: 18px;display: inline-block;" class="left-line">Services</span>
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <div class="address_details" style="text-align: center;">
+                                        <h5 style="font-weight: bold;padding: 8px;border-top: 2px solid black;border-bottom: 1px solid black;color: black;" class="print-title-office">OFFICE</h5>
+                                        <h4 style="font-family: lucidaHandwriting;font-size: 17px;color: #da2605;text-transform: uppercase;font-weight: bold;">Sri Sai Wheel Care</h4>
+                                        <p style="font-size: 13px;">No 13, 3rd mile, <br/>Arakkonam - Tiruttani Road, <br/>Thanigaipolur (Opp.Annai Timbers), <br/>Arakkonam - 631003, Tamil Nadu<br/> <b>Tel : </b>+91-952181410,9597881882 <br/><b>Mail : </b>srisaiwheelcare@gmail.com <br/><b>Web : </b>www.srisaiwheelcare.com <br/> <b>Tin : 33516291425</b><br/><b>C.S.T : 1140522</b><br/><b>GSTIN : 33AOSPM3611D1Z6</b></p>
+                                    </div>
+                                </td>
+                            </tr>
+                        </table>
+                    </td>
+                    <td class="col-wid-70" style="border-left: 1px solid black;vertical-align: top;">
+                        <table style="width: 100%;">
+                            <tr>
+                                <td class="col-wid-50" style="border-right: 1px solid black;vertical-align: top;padding-top: 8px;">
+                                    <div class="box-content text-left" style="padding-left: 5px;">
+                                        <h3 style="font-size: 13px;font-weight: bold;">SOLD TO:</h3>
+                                        <div class="customer_address" style="padding-left: 5px;">
+                                            <div style="font-size: 12px;margin-bottom: 2px;">
+                                                <?php echo $order_detail['customer_name']; ?><br/>
+                                                <?php echo $order_detail['address']; ?><br/>
+                                                <?php echo $order_detail['city']; ?>
+                                                <?php echo $order_detail['phone'] . '</br>'; ?>
+                                                <?php echo $order_detail['vehicle_make'] . '</br>'; ?>
+                                                <?php echo $order_detail['vehicle_no']; ?>
+                                            </div>									
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="col-wid-50" style="vertical-align: top;">
+                                    <div class="box-content text-left" style="width: 100%;">
+                                        <table class="table table-invoice-details" style="width: 100%;margin-bottom: -1px;">
+                                            <tr>
+                                                <td>INVOICE NO: </td>
+                                                <td><?php echo 'SA' . $order_detail['id']; ?></td>
+                                            </tr>
+                                            <tr>
+                                                <td>DATE: </td>
+                                                <td><?php echo date_format(new DateTime($order_detail['date_added']), "d-m-Y"); ?></td>
+                                            </tr>
+                                            <tr>
+                                                <td>REFERENCE: </td>
+                                                <td></td>
+                                            </tr>
+                                            <tr>
+                                                <td colspan=1>WAREHOUSE:</td>
+                                                <td colspan=3></td>
+                                            </tr>
+                                        </table>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td colspan=2>
+                                    <div style="height: 290px;">
+                                        <table class="table table-print-view" style="width: 100%;margin-bottom: 10px;">
+                                            <thead>
+                                            <td class="text-center" style="width: 10%;padding-left: 2px;">S.NO.</td>
+                                            <td class="text-center" style="width: 40%;">DESCRIPTION</td>
+                                            <td class="text-center" style="width: 5%;">QTY</td>
+                                            <td class="text-right" style="width: 22%;">UNIT PRICE</td>
+                                            <td class="text-right" style="padding-right: 3px;">AMOUNT</td>
+                                            </thead>
+                                            <tbody style="">
+                                                <?php $addition_line = 0; ?>
+                                                <?php $i = 1; ?>
+                                                <?php while ($product_detail = mysqli_fetch_assoc($product_result)): ?>
+                                                    <tr>
+                                                        <td class="text-center" style="padding-left: 3px;"><?php echo $i; ?></td>
+                                                        <td>
+                                                            <?php echo $product_detail['product_name']; ?>
+                                                            <?php
+                                                            if (strlen($product_detail['product_name']) > 32) {
+                                                                $temp = (int) (strlen($product_detail['product_name']) / 30);
+                                                                $addition_line += $temp;
+                                                            }
+                                                            ?>
+                                                        </td>
+                                                        <td class="text-center"><?php echo $product_detail['qty']; ?></td>
+                                                        <td class="text-right"><?php echo $product_detail['price']; ?></td>
+                                                        <td class="text-right" style="padding-right: 4px;"><?php echo number_format((float) $product_detail['total'], 2, '.', ''); ?></td>
+                                                    </tr>
+                                                    <?php $i++; ?>
+                                                <?php endwhile; ?>
+                                                <?php
+                                                $row = 4 - $i - $addition_line;
+                                                // create empty row
+                                                if ($row):
+                                                    for ($a = 0; $a <= $row; $a++):
+                                                        ?>
+                                                        <tr class='empty-row'>
+                                                            <td></td>
+                                                            <td></td>
+                                                            <td></td>
+                                                            <td></td>
+                                                            <td></td>
+                                                        </tr>
+                                                    <?php endfor;
+                                                endif;
+                                                ?>
+                                                <tr>
+                                                    <td></td>
+                                                    <td class="text-right"><b>Sub-total(without tax)</b></td>
+                                                    <td></td>
+                                                    <td></td>
+                                                    <td class="text-right"><b><?php echo $sub_total = number_format((float) $order_detail['sub_total'], 2, '.', ''); ?></b></td>
+                                                </tr>
+                                                <?php if ($order_detail['vat_amount']): ?>
+                                                    <tr>
+                                                        <td></td>
+                                                        <td class="text-right">SGST <?php echo $order_detail['vat_percent'] / 2 . '%'; ?></td>
+                                                        <td></td>
+                                                        <td></td>
+                                                        <td class="text-right"><?php echo $vat_amount1 = number_format((float) $order_detail['vat_amount'] / 2, 2, '.', ''); ?></td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td></td>
+                                                        <td class="text-right">CGST <?php echo $order_detail['vat_percent'] / 2 . '%'; ?></td>
+                                                        <td></td>
+                                                        <td></td>
+                                                        <td class="text-right"><?php echo $vat_amount2 = number_format((float) $order_detail['vat_amount'] / 2, 2, '.', ''); ?></td>
+                                                    </tr>
+                                                <?php endif; ?>
+                                                <?php
+                                                $round_off = round($order_detail['grand_total']) - ($sub_total + $vat_amount1 + $vat_amount2);
+                                                if ($round_off != 0):
+                                                    ?>
+                                                    <tr>
+                                                        <td></td>
+                                                        <td class="text-right">Round Off</td>
+                                                        <td></td>
+                                                        <td></td>
+                                                        <td class="text-right">
+                                                            <?php
+                                                            $round_off = round($order_detail['grand_total']) - ($sub_total + $vat_amount1 + $vat_amount2);
+                                                            $sign = '+';
+                                                            if ($round_off <= 0) {
+                                                                $sign = '-';
+                                                                $round_off = abs($round_off);
+                                                            }
+                                                            echo "(" . $sign . ")" . number_format((float) $round_off, 2, '.', '');
+                                                            ?>
+
+                                                        </td>
+                                                    </tr>
+                                                <?php endif; ?>
+                                            </tbody>
+                                            <tfoot style="border-bottom: 1px solid black;">
+                                            <td></td>
+                                            <td></td>
+                                            <td></td>
+                                            <td style="width: 22%;font-weight:bold;" class="text-right">Total</td>
+                                            <td class="text-right" style="padding-right: 4px;font-weight:bold;"><?php echo number_format((float) round($order_detail['grand_total']), 2, '.', ''); ?></td>
+                                            </tfoot>
+                                        </table>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr style="height: 60px;vertical-align: bottom;font-size: 15px;">
+                                <td style="padding-left: 5px;">RECEIVER'S SIGNATURE</td>
+                                <td style="text-align: right;padding-right: 5px;">For Sri Sai Wheel Care</td>
+                            </tr>
+                        </table>
+                    </td>
+                </tr>
+            </table>
+            <table class="col-wid-100 footer-logo" style="border: 1px solid black;border-top: 0px;">
+                <tr>
+                    <td>
+                        <img src="image/footer/bridgestone.jpg" style="width: 125px;" />
+                    </td>
+                    <td>
+                        <img src="image/footer/apollo.png" style="width: 88px;" />
+                    </td>
+                    <td>
+                        <img src="image/footer/mobil-1.jpg" style="width: 100px;" />
+                    </td>
+                    <td>
+                        <img src="image/footer/3m.jpg" />
+                    </td>					
+                    <td>
+                        <img src="image/footer/bosch.jpg" style="width: 120px;" />
+                    </td>
+                    <td>
+                        <img src="image/footer/skf.gif" style="width: 67px;" />
+                    </td>
+                    <td>
+                        <img src="image/footer/tvs.png" />
+                    </td>
+                </tr>
+            </table>
+            <div class="control-group" style="margin: 10px;height: initial;">
+                <div class="text-left col-sm-4" style="display:inline-block;">
+                    <a href="add-sales-bill.phtml?id=<?php echo $sale; ?>">
+                        <button class="btn btn-custom" type="button"><i class="fa fa-pencil"></i> Edit</button>
+                    </a>
+                </div>
+                <div class="text-right col-sm-8" style="display:inline-block;">
+                    <button class="btn btn-primary" type="button" onclick="myPrintFunction()"><i class="fa fa-print"></i> Print</button>
+                    <a href="manage-sales.phtml">
+                        <button class="btn btn-default" type="button"><i class="fa fa-reply"></i> Back</button>
+                    </a>
+                </div>
+            </div>
+        <?php else: ?>
+            <p class="text-center"> Sorry Order details has been found! </p>
+        <?php endif; ?>
+        <!-- add js -->
+        <script src="js/jquery-3.2.1.min.js"></script>
+        <script src="js/theme.js"></script>
+    </body>
 </html>

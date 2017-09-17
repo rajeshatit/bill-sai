@@ -22,22 +22,24 @@ $(document).ready(function(){
     e.stopPropagation();
     e.preventDefault();
   });
-	var $i = 1;
-	var $no = 2;
+	
+	var $no = $('.no_of_product_rows').val();
+        var $i = $no;
 	$('.add-new-product').on("click",function(e){
+            $no++;
+            $i = $no-1;
 		var $total = 5;
 		if($(this).hasClass("services-order")){
 			$total = 10;
 		}
 		if($no==$total){
-			$('.add-new-product').remove();
+			$('.add-new-product').hide();
 		}
 		var $html = '<tr class="add-new-row-next"><td class="text-center">' + $no + '</td><td class="text-left"><input type="text" name="product[' + $i + '][name]" class="product_name" value="" autocomplete="off" /></td><td class="text-right"><input type="number" name="product[' + $i + '][qty]" value="" /></td><td class="text-right"><input type="number" name="product[' + $i + '][price]" value="" /></td></tr>';
 		var $div = $(".add-new-row-next").closest('tbody');
 		$('.table-product-details-info').find('tr').removeClass("add-new-row-next");
 		$div.append($html);
 		$i++;
-		$no++;
 	});
 	
 	//get the related product

@@ -7,315 +7,323 @@ $title = "Manage - Sales Billing";
 
 // get total
 $sql = "SELECT * FROM bill_sale_order ";
-$result = mysqli_query($db,$sql);
+$result = mysqli_query($db, $sql);
 //$rows = mysqli_fetch_assoc($result);
 $total = mysqli_num_rows($result);
 $rec_limit = 30;
 $adjacents = 3;
-if(isset($_GET['page'])){
-	$page = $_GET['page'];
-}else{
-	$page = 0;
+if (isset($_GET['page'])) {
+    $page = $_GET['page'];
+} else {
+    $page = 0;
 }
-if($page){
-	$start = ($page - 1) * $rec_limit;
-}else {
-	$start = 0;
+if ($page) {
+    $start = ($page - 1) * $rec_limit;
+} else {
+    $start = 0;
 }
 
 // get sale order details
 
-$sql = "SELECT * FROM bill_sale_order ORDER BY id DESC LIMIT ".$start.",".$rec_limit;
+$sql = "SELECT * FROM bill_sale_order ORDER BY id DESC LIMIT " . $start . "," . $rec_limit;
 
-$result = mysqli_query($db,$sql);
+$result = mysqli_query($db, $sql);
 //$rows = mysqli_fetch_assoc($result);
 $count = mysqli_num_rows($result);
 
 /* Setup page vars for display. */
-if ($page == 0) $page = 1;					//if no page var is given, default to 1.
-$prev = $page - 1;							//previous page is page - 1
-$next = $page + 1;							//next page is page + 1
-$lastpage = ceil($total/$rec_limit);		//lastpage is = total pages / items per page, rounded up.
-$lpm1 = $lastpage - 1;						//last page minus 1
-
+if ($page == 0)
+    $page = 1;     //if no page var is given, default to 1.
+$prev = $page - 1;       //previous page is page - 1
+$next = $page + 1;       //next page is page + 1
+$lastpage = ceil($total / $rec_limit);  //lastpage is = total pages / items per page, rounded up.
+$lpm1 = $lastpage - 1;      //last page minus 1
 //echo 'prev : '.$prev.' next : '.$next.' lastpage '.$lastpage.' lmp '.$lpm1;
-
 ?>
 <html>
-	<?php include "head.php"; ?>
-	<body>
-		<div id="container">
-			<?php include 'header.php';?>
-			<?php include 'leftnav.php';?>
-			
-			
-			<div id="content">
-				<div class="page-header">
-					<div class="container-fluid">
-						
-						<div class="pull-right">
-							<a href="add-sales-bill.phtml" data-toggle="tooltip" title="" class="btn btn-primary" data-original-title="Add New"><i class="fa fa-plus"></i></a>
-							<!--button type="button" data-toggle="tooltip" title="" class="btn btn-danger" onclick="confirm('Are you sure?') ? $('#form-manage-sales').submit() : false;" data-original-title="Delete"><i class="fa fa-trash-o"></i></button-->
-						</div>
-					
-						<h1>Sales Billing</h1>
-						<ul class="breadcrumb">
-							<li><a href="">Home</a></li>
-							<li><a href="">Manage Sales Billing</a></li>
-						</ul>
-					</div>
-				</div>
-				<div class="container-fluid">
-					<div class="panel panel-default">
-						<div class="panel-heading">
-							<h3 class="panel-title"><i class="fa fa-list"></i> Sales Billing List</h3>
-						</div>
-						<div class="panel-body">
-							<form action="" method="post" enctype="multipart/form-data" id="form-manage-sales">
-								<div class="table-responsive">
-									<table class="table table-bordered table-hover">
-										<thead>
-											<tr>
-												<td style="width: 1px;" class="text-center"><input type="checkbox" onclick="$('input[name*=\'selected\']').prop('checked', this.checked);"></td>
-												<td class="text-left">Sales Billing Number</td>
-												<td class="text-left">Customer Name</td>
-												<!--td class="text-right">Customer City</td-->
-												<td class="text-right">Phone No</td>
-												<td class="text-right">Grand Total</td>
-												<td class="text-right">Added Date</td>
-												<td class="text-right">Action</td>
-												<td class="text-right">Message</td>
-											</tr>
-										</thead>
-										<tbody>
-											<?php if($count >= 1) : ?>
-												<?php while($row = mysqli_fetch_assoc($result)): ?>
-													<tr>
-														<td class="text-center">
-															<input type="checkbox" name="selected[]" value="33">
-														</td>
-														<td class="text-left"><?php echo $row['id']; ?></td>
-														<td class="text-left"><?php echo $row['customer_name']; ?></td>
-														<!--td class="text-right"><?php echo $row['city']; ?></td-->
-														<td class="text-right"><?php echo $row['phone']; ?></td>
-														<td class="text-right"><?php echo $row['grand_total']; ?></td>
-														<td class="text-right"><?php echo date_format(new DateTime($row['date_added']),"d-m-Y"); ?></td>
-														<td class="text-right"><a href="view_sales_bill_table.phtml?sale=<?php echo $row['id']; ?>" data-toggle="tooltip" title="" class="btn btn-primary" data-original-title="View Bill"><i class="fa fa-eye"></i></a></td>
-														<td class="text-right">
-															<button class="btn btn-info message-function" data-toggle="modal" data-target="#myModal" type="button">
-																<input type="hidden" class="id" value="<?php echo $row['id']; ?>" /> 
-																<input type="hidden" class="phone" value="<?php echo $row['phone']; ?>" />
-																<input type="hidden" class="name" value="<?php echo $row['customer_name']; ?>" />
-																<i class="fa fa-commenting-o" aria-hidden="true"></i> Msg
-															</button>
-															<button class="btn btn-info message-function-details" data-toggle="modal" data-target="#deliveryDetails" type="button">
-																<input type="hidden" class="id" value="<?php echo $row['id']; ?>" /> 
-																<input type="hidden" class="type" value="sales" />
-																<i class="fa fa-check" aria-hidden="true"></i> Details
-															</button>
-														</td>
-													</tr>
-												<?php endwhile; ?>
-											<?php else: ?>
-											<tr>
-												<td colspan='7' align="center">Not Sale Order Details available</td>
-											</tr>
-											<?php endif; ?>
-										</tbody>
-									</table>
-								</div>
-							</form>
-							<div class="row">
-								<div class="col-sm-6 text-left">
-									<?php if($lastpage > 1) { ?>
-										<ul class="pagination">
-											<?php if ($page > 1) { ?>
-												<li>
-													<a href="manage-sales.phtml?page=1">|&lt;</a>
-												</li>
-												<li>
-													<a href="manage-sales.phtml?page=<?php echo $prev; ?>">&lt;</a>
-												</li>
-											<?php } ?>
-											
-											<?php if ($lastpage < 7 + ($adjacents * 2)){ ?>
-												<?php for ($counter = 1; $counter <= $lastpage; $counter++) { ?>
-													<?php if ($counter == $page){ ?>
-														<li class="active">
-															<span><?php echo $counter; ?></span>
-														</li>
-													<?php } else { ?>
-														<li>
-															<a href="manage-sales.phtml?page=<?php echo $counter; ?>"><?php echo $counter; ?></a>
-														</li>
-													<?php } ?>
-												<?php } ?>
-											<?php } elseif($lastpage > 5 + ($adjacents * 2)) { ?>
-												<?php if($page < 1 + ($adjacents * 2)){ ?>
-													<?php for ($counter = 1; $counter < 4 + ($adjacents * 2); $counter++){ ?>
-														<?php if ($counter == $page){ ?>
-															<li class="active">
-																<span><?php echo $counter; ?></span>
-															</li>
-														<?php } else { ?>
-															<li>
-																<a href="manage-sales.phtml?page=<?php echo $counter; ?>"><?php echo $counter; ?></a>
-															</li>
-														<?php } ?>
-													<?php } ?>
-													<li><span>...</span></li>
-													<li>
-														<a href="manage-sales.phtml?page=<?php echo $lpm1; ?>"><?php echo $lpm1; ?></a>
-													</li>
-													<li>
-														<a href="manage-sales.phtml?page=<?php echo $lastpage; ?>"><?php echo $lastpage; ?></a>
-													</li>
-												<?php } elseif($lastpage - ($adjacents * 2) > $page && $page > ($adjacents * 2)) { ?>
-													<li>
-														<a href="manage-sales.phtml?page=1">1</a>
-													</li>
-													<li>
-														<a href="manage-sales.phtml?page=2">2</a>
-													</li>
-													<li><span>...</span></li>
-													<?php for ($counter = $page - $adjacents; $counter <= $page + $adjacents; $counter++){ ?>
-														<?php if ($counter == $page){ ?>
-															<li class="active">
-																<span><?php echo $counter; ?></span>
-															</li>
-														<?php } else { ?>
-															<li>
-																<a href="manage-sales.phtml?page=<?php echo $counter; ?>"><?php echo $counter; ?></a>
-															</li>
-														<?php } ?>
-													<?php } ?>
-													<li><span>...</span></li>
-													<li>
-														<a href="manage-sales.phtml?page=<?php echo $lpm1; ?>"><?php echo $lpm1; ?></a>
-													</li>
-													<li>
-														<a href="manage-sales.phtml?page=<?php echo $lastpage; ?>"><?php echo $lastpage; ?></a>
-												<?php }else{ ?>
-													<li>
-														<a href="manage-sales.phtml?page=1">1</a>
-													</li>
-													<li>
-														<a href="manage-sales.phtml?page=2">2</a>
-													</li>
-													<li><span>...</span></li>
-													<?php for ($counter = $lastpage - (2 + ($adjacents * 2)); $counter <= $lastpage; $counter++) { ?>
-														<?php if ($counter == $page){ ?>
-															<li class="active">
-																<span><?php echo $counter; ?></span>
-															</li>
-														<?php } else { ?>
-															<li>
-																<a href="manage-sales.phtml?page=<?php echo $counter; ?>"><?php echo $counter; ?></a>
-															</li>
-														<?php } ?>
-													<?php } ?>
-												<?php } ?>
-											<?php } ?>
-											
-											<?php if ($page < $counter - 1){ ?>
-												<li>
-													<a href="manage-sales.phtml?page=<?php echo $next; ?>">&gt;</a>
-												</li>
-												<li>
-													<a href="manage-sales.phtml?page=<?php echo $lastpage; ?>">&gt;|</a>
-												</li>
-											<?php } ?>										
-										</ul>
-									<?php } ?>
-								</div>
-								<div class="col-sm-6 text-right">Showing <?php echo 1+(($page-1)*$rec_limit); ?> to <?php $check = $page*$rec_limit; if($check < $total) echo $check; else echo $total; ?> of <?php echo $total; ?> (<?php echo $lastpage; ?> Pages)</div>
-							</div>
-						</div>
-					</div>
-				</div>
-				<!-- Popup Message -->
-				<div class="modal fade" id="myModal" role="dialog">
-					<div class="modal-dialog">
-						<div class="modal-content">
-							<div class="modal-header">
-								<button type="button" class="close" data-dismiss="modal">&times;</button>
-								<h4 class="modal-title">Send Message</h4>
-							</div>
-							<div class="modal-body">
-								<div class="message-content">
-									<input type="hidden" value="sales" name="type" class="type" />
-									<input type="hidden" value="" name="id" class="id" />
-									<div class="tab-content">
-										<div class="form-group required">
-											<div class="col-sm-10">
-												<span><b>+91 -</b></span>
-												<input type="text" value="" name="phone" class="phone" />
-											</div>
-											<div class="col-sm-10" style="border-left: 1px solid gray;">
-												<input type="hidden" value="" name="name" class="name" />
-												<span class="customer-name" style="margin-top: 5px;display: inline-block;"></span>
-											</div>
-										</div>
-										<div class="form-group required">
-											<div class="col-sm-10">
-												<textarea name="message" rows="5" placeholder="Messages" id="input-messages" class="form-control message">Thanks for your Vist our shop..  
+    <?php include "head.php"; ?>
+    <body>
+        <div id="container">
+            <?php include 'header.php'; ?>
+            <?php include 'leftnav.php'; ?>
+
+
+            <div id="content">
+                <div class="page-header">
+                    <div class="container-fluid">
+
+                        <div class="pull-right">
+                            <a href="add-sales-bill.phtml" data-toggle="tooltip" title="" class="btn btn-primary" data-original-title="Add New"><i class="fa fa-plus"></i></a>
+                            <!--button type="button" data-toggle="tooltip" title="" class="btn btn-danger" onclick="confirm('Are you sure?') ? $('#form-manage-sales').submit() : false;" data-original-title="Delete"><i class="fa fa-trash-o"></i></button-->
+                        </div>
+
+                        <h1>Sales Billing</h1>
+                        <ul class="breadcrumb">
+                            <li><a href="">Home</a></li>
+                            <li><a href="">Manage Sales Billing</a></li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="container-fluid">
+                    <div class="panel panel-default">
+                        <div class="panel-heading">
+                            <h3 class="panel-title"><i class="fa fa-list"></i> Sales Billing List</h3>
+                        </div>
+                        <div class="panel-body">
+                            <form action="" method="post" enctype="multipart/form-data" id="form-manage-sales">
+                                <div class="table-responsive">
+                                    <table class="table table-bordered table-hover">
+                                        <thead>
+                                            <tr>
+                                                <td style="width: 1px;" class="text-center"><input type="checkbox" onclick="$('input[name*=\'selected\']').prop('checked', this.checked);"></td>
+                                                <td class="text-left">Sales Billing Number</td>
+                                                <td class="text-left">Customer Name</td>
+                                                <!--td class="text-right">Customer City</td-->
+                                                <td class="text-right">Phone No</td>
+                                                <td class="text-right">Grand Total</td>
+                                                <td class="text-right">Added Date</td>
+                                                <td class="text-right">Action</td>
+                                                <td class="text-right">Message</td>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <?php if ($count >= 1) : ?>
+                                                <?php while ($row = mysqli_fetch_assoc($result)): ?>
+                                                    <tr>
+                                                        <td class="text-center">
+                                                            <input type="checkbox" name="selected[]" value="33">
+                                                        </td>
+                                                        <td class="text-left"><?php echo $row['id']; ?></td>
+                                                        <td class="text-left"><?php echo $row['customer_name']; ?></td>
+                                                        <!--td class="text-right"><?php echo $row['city']; ?></td-->
+                                                        <td class="text-right"><?php echo $row['phone']; ?></td>
+                                                        <td class="text-right"><?php echo $row['grand_total']; ?></td>
+                                                        <td class="text-right"><?php echo date_format(new DateTime($row['date_added']), "d-m-Y"); ?></td>
+                                                        <td class="text-right">
+                                                            <a href="view_sales_bill_table.phtml?sale=<?php echo $row['id']; ?>" data-toggle="tooltip" title="" class="btn btn-primary" data-original-title="View Bill"><i class="fa fa-eye"></i></a>
+                                                            <a href="add-sales-bill.phtml?id=<?php echo $row['id']; ?>" data-toggle="tooltip" title="" class="btn btn-custom" data-original-title="View Bill"><i class="fa fa-pencil"></i></a>
+                                                        </td>
+                                                        <td class="text-right">
+                                                            <button class="btn btn-info message-function" data-toggle="modal" data-target="#myModal" type="button">
+                                                                <input type="hidden" class="id" value="<?php echo $row['id']; ?>" /> 
+                                                                <input type="hidden" class="phone" value="<?php echo $row['phone']; ?>" />
+                                                                <input type="hidden" class="name" value="<?php echo $row['customer_name']; ?>" />
+                                                                <i class="fa fa-commenting-o" aria-hidden="true"></i> Msg
+                                                            </button>
+                                                            <button class="btn btn-info message-function-details" data-toggle="modal" data-target="#deliveryDetails" type="button">
+                                                                <input type="hidden" class="id" value="<?php echo $row['id']; ?>" /> 
+                                                                <input type="hidden" class="type" value="sales" />
+                                                                <i class="fa fa-check" aria-hidden="true"></i> Details
+                                                            </button>
+                                                        </td>
+                                                    </tr>
+                                                <?php endwhile; ?>
+                                            <?php else: ?>
+                                                <tr>
+                                                    <td colspan='7' align="center">Not Sale Order Details available</td>
+                                                </tr>
+                                            <?php endif; ?>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </form>
+                            <div class="row">
+                                <div class="col-sm-6 text-left">
+                                    <?php if ($lastpage > 1) { ?>
+                                        <ul class="pagination">
+                                            <?php if ($page > 1) { ?>
+                                                <li>
+                                                    <a href="manage-sales.phtml?page=1">|&lt;</a>
+                                                </li>
+                                                <li>
+                                                    <a href="manage-sales.phtml?page=<?php echo $prev; ?>">&lt;</a>
+                                                </li>
+                                            <?php } ?>
+
+                                            <?php if ($lastpage < 7 + ($adjacents * 2)) { ?>
+                                                <?php for ($counter = 1; $counter <= $lastpage; $counter++) { ?>
+                                                    <?php if ($counter == $page) { ?>
+                                                        <li class="active">
+                                                            <span><?php echo $counter; ?></span>
+                                                        </li>
+                                                    <?php } else { ?>
+                                                        <li>
+                                                            <a href="manage-sales.phtml?page=<?php echo $counter; ?>"><?php echo $counter; ?></a>
+                                                        </li>
+                                                    <?php } ?>
+                                                <?php } ?>
+                                            <?php } elseif ($lastpage > 5 + ($adjacents * 2)) { ?>
+                                                <?php if ($page < 1 + ($adjacents * 2)) { ?>
+                                                    <?php for ($counter = 1; $counter < 4 + ($adjacents * 2); $counter++) { ?>
+                                                        <?php if ($counter == $page) { ?>
+                                                            <li class="active">
+                                                                <span><?php echo $counter; ?></span>
+                                                            </li>
+                                                        <?php } else { ?>
+                                                            <li>
+                                                                <a href="manage-sales.phtml?page=<?php echo $counter; ?>"><?php echo $counter; ?></a>
+                                                            </li>
+                                                        <?php } ?>
+                                                    <?php } ?>
+                                                    <li><span>...</span></li>
+                                                    <li>
+                                                        <a href="manage-sales.phtml?page=<?php echo $lpm1; ?>"><?php echo $lpm1; ?></a>
+                                                    </li>
+                                                    <li>
+                                                        <a href="manage-sales.phtml?page=<?php echo $lastpage; ?>"><?php echo $lastpage; ?></a>
+                                                    </li>
+                                                <?php } elseif ($lastpage - ($adjacents * 2) > $page && $page > ($adjacents * 2)) { ?>
+                                                    <li>
+                                                        <a href="manage-sales.phtml?page=1">1</a>
+                                                    </li>
+                                                    <li>
+                                                        <a href="manage-sales.phtml?page=2">2</a>
+                                                    </li>
+                                                    <li><span>...</span></li>
+                                                    <?php for ($counter = $page - $adjacents; $counter <= $page + $adjacents; $counter++) { ?>
+                                                        <?php if ($counter == $page) { ?>
+                                                            <li class="active">
+                                                                <span><?php echo $counter; ?></span>
+                                                            </li>
+                                                        <?php } else { ?>
+                                                            <li>
+                                                                <a href="manage-sales.phtml?page=<?php echo $counter; ?>"><?php echo $counter; ?></a>
+                                                            </li>
+                                                        <?php } ?>
+                                                    <?php } ?>
+                                                    <li><span>...</span></li>
+                                                    <li>
+                                                        <a href="manage-sales.phtml?page=<?php echo $lpm1; ?>"><?php echo $lpm1; ?></a>
+                                                    </li>
+                                                    <li>
+                                                        <a href="manage-sales.phtml?page=<?php echo $lastpage; ?>"><?php echo $lastpage; ?></a>
+                                                    <?php } else { ?>
+                                                    <li>
+                                                        <a href="manage-sales.phtml?page=1">1</a>
+                                                    </li>
+                                                    <li>
+                                                        <a href="manage-sales.phtml?page=2">2</a>
+                                                    </li>
+                                                    <li><span>...</span></li>
+                                                    <?php for ($counter = $lastpage - (2 + ($adjacents * 2)); $counter <= $lastpage; $counter++) { ?>
+                                                        <?php if ($counter == $page) { ?>
+                                                            <li class="active">
+                                                                <span><?php echo $counter; ?></span>
+                                                            </li>
+                                                        <?php } else { ?>
+                                                            <li>
+                                                                <a href="manage-sales.phtml?page=<?php echo $counter; ?>"><?php echo $counter; ?></a>
+                                                            </li>
+                                                        <?php } ?>
+                                                    <?php } ?>
+                                                <?php } ?>
+                                            <?php } ?>
+
+                                            <?php if ($page < $counter - 1) { ?>
+                                                <li>
+                                                    <a href="manage-sales.phtml?page=<?php echo $next; ?>">&gt;</a>
+                                                </li>
+                                                <li>
+                                                    <a href="manage-sales.phtml?page=<?php echo $lastpage; ?>">&gt;|</a>
+                                                </li>
+                                            <?php } ?>										
+                                        </ul>
+                                    <?php } ?>
+                                </div>
+                                <div class="col-sm-6 text-right">Showing <?php echo 1 + (($page - 1) * $rec_limit); ?> to <?php
+                                    $check = $page * $rec_limit;
+                                    if ($check < $total)
+                                        echo $check;
+                                    else
+                                        echo $total;
+                                    ?> of <?php echo $total; ?> (<?php echo $lastpage; ?> Pages)</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- Popup Message -->
+                <div class="modal fade" id="myModal" role="dialog">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                                <h4 class="modal-title">Send Message</h4>
+                            </div>
+                            <div class="modal-body">
+                                <div class="message-content">
+                                    <input type="hidden" value="sales" name="type" class="type" />
+                                    <input type="hidden" value="" name="id" class="id" />
+                                    <div class="tab-content">
+                                        <div class="form-group required">
+                                            <div class="col-sm-10">
+                                                <span><b>+91 -</b></span>
+                                                <input type="text" value="" name="phone" class="phone" />
+                                            </div>
+                                            <div class="col-sm-10" style="border-left: 1px solid gray;">
+                                                <input type="hidden" value="" name="name" class="name" />
+                                                <span class="customer-name" style="margin-top: 5px;display: inline-block;"></span>
+                                            </div>
+                                        </div>
+                                        <div class="form-group required">
+                                            <div class="col-sm-10">
+                                                <textarea name="message" rows="5" placeholder="Messages" id="input-messages" class="form-control message">Thanks for your Vist our shop..  
 Sri Sai Wheel Care, Akm</textarea>
-											</div>
-										</div>
-									</div>
-								</div>
-								<div class="message-loading" style="display:none;">
-									<div class="text-center">
-										<i class="fa fa-spinner fa-pulse fa-3x fa-fw"></i>
-										<span class="sr-only">Loading...</span>
-									</div>
-								</div>
-								<div class="message-sender" style="display:none;">
-									<span class="content-msg"></span>
-								</div>
-							</div>
-							<div class="modal-footer">
-								<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>&nbsp;&nbsp;
-								<button type="button" class="btn btn-primary send-message">Send</button>
-							</div>
-						</div>
-					</div>
-				</div>
-				<!-- Popup delivery Message -->
-				<div class="modal fade" id="deliveryDetails" role="dialog">
-					<div class="modal-dialog">
-						<div class="modal-content">
-							<div class="modal-header">
-								<button type="button" class="close" data-dismiss="modal">&times;</button>
-								<h4 class="modal-title">Message Details</h4>
-							</div>
-							<div class="modal-body">
-								<div class="message-content">
-									
-								</div>
-								<div class="message-loading" style="display:none;">
-									<div class="text-center">
-										<i class="fa fa-spinner fa-pulse fa-3x fa-fw"></i>
-										<span class="sr-only">Loading...</span>
-									</div>
-								</div>
-							</div>
-							<div class="modal-footer">
-								<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-							</div>
-						</div>
-					</div>
-				</div>
-				
-			
-			
-		</div>
-		
-		<!-- add js -->
-		<script src="js/jquery-3.2.1.min.js"></script>
-		<script src="js/bootstrap.min.js"></script>
-		<script src="js/jquery-ui.min.js"></script>
-		<script src="js/theme.js"></script>
-		<script src="js/common.js"></script>
-	</body>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="message-loading" style="display:none;">
+                                    <div class="text-center">
+                                        <i class="fa fa-spinner fa-pulse fa-3x fa-fw"></i>
+                                        <span class="sr-only">Loading...</span>
+                                    </div>
+                                </div>
+                                <div class="message-sender" style="display:none;">
+                                    <span class="content-msg"></span>
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>&nbsp;&nbsp;
+                                <button type="button" class="btn btn-primary send-message">Send</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- Popup delivery Message -->
+                <div class="modal fade" id="deliveryDetails" role="dialog">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                                <h4 class="modal-title">Message Details</h4>
+                            </div>
+                            <div class="modal-body">
+                                <div class="message-content">
+
+                                </div>
+                                <div class="message-loading" style="display:none;">
+                                    <div class="text-center">
+                                        <i class="fa fa-spinner fa-pulse fa-3x fa-fw"></i>
+                                        <span class="sr-only">Loading...</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+
+
+            </div>
+        </div>
+        <!-- add js -->
+        <script src="js/jquery-3.2.1.min.js"></script>
+        <script src="js/bootstrap.min.js"></script>
+        <script src="js/jquery-ui.min.js"></script>
+        <script src="js/theme.js"></script>
+        <script src="js/common.js"></script>
+    </body>
 </html>
