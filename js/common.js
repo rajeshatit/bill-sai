@@ -293,9 +293,9 @@ function setCustomMessage(checked_msg,check_services){
         var send_msg = '';
         //alert(check_services);
         if(checked_msg == 1){
-            send_msg = 'Thanks for your Vist our pitstop for your wheels. \n DP Wheel Care Point, kpm';
+            send_msg = 'Thanks for your Vist our pitstop for your wheels. \n Sri Sai Wheel Care, Akm';
             if(check_services){
-                send_msg = 'Thank you for your visit to our pitstop for your wheels,,,,\nplease ensure your wheel alignment for every 5000 KM for comfortable and safe drive,\nRgds,\nDP wheel care point.';
+                send_msg = 'Thank you for your visit to our pitstop for your wheels,,,,\nplease ensure your wheel alignment for every 5000 KM for comfortable and safe drive,\nRgds,\nSri Sai Wheel Care.';
             }
         }
         if(checked_msg == 2){
@@ -306,7 +306,7 @@ function setCustomMessage(checked_msg,check_services){
                 var cus = new Date((+new Date(purchase_date)) + 2678400000);
 //                var custom_date = cus.getDate() +' - ' + cus.getMonth() + ' - ' + cus.getFullYear();
                 var custom_date = $.datepicker.formatDate('dd-M-yy', cus);
-                send_msg = 'Hi('+ obj.customer_name +') this is friendly reminder from DP wheel care point kpm,\nthat your vehicle ('+ obj.city +')  free wheel alignment  Will end tomorrow ('+ custom_date +').\nplease check it  for comfortable and safe drive.\nRgds,\nDP wheel care point.';
+                send_msg = 'Hi('+ obj.customer_name +') this is friendly reminder from DP wheel care point kpm,\nthat your vehicle ('+ obj.city +')  free wheel alignment  Will end tomorrow ('+ custom_date +').\nplease check it  for comfortable and safe drive.\nRgds,\nSri Sai Wheel Care.';
             }
         }
         if(checked_msg == 3){
