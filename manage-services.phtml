@@ -113,6 +113,7 @@ $lpm1 = $lastpage - 1;      //last page minus 1
                                                                 <input type="hidden" class="id" value="<?php echo $row['id']; ?>" /> 
                                                                 <input type="hidden" class="phone" value="<?php echo $row['phone']; ?>" />
                                                                 <input type="hidden" class="name" value="<?php echo $row['customer_name']; ?>" />
+                                                                <input type="hidden" class="additional_info" value='<?php echo json_encode($row); ?>' />
                                                                 <i class="fa fa-commenting-o" aria-hidden="true"></i> Msg
                                                             </button>
                                                             <button class="btn btn-info message-function-details" data-toggle="modal" data-target="#deliveryDetails" type="button">
@@ -260,13 +261,38 @@ $lpm1 = $lastpage - 1;      //last page minus 1
                                     <input type="hidden" value="" name="id" class="id" />
                                     <div class="tab-content">
                                         <div class="form-group required">
-                                            <div class="col-sm-10">
+                                            <div class="col-sm-6">
                                                 <span><b>+91 -</b></span>
-                                                <input type="text" value="" name="phone" class="phone" />
+                                                <input type="text" value="" name="phone" class="phone" style="font-weight: bold;"/>
                                             </div>
-                                            <div class="col-sm-10" style="border-left: 1px solid gray;">
+                                            <div class="col-sm-6" style="border-left: 1px solid gray;">
                                                 <input type="hidden" value="" name="name" class="name" />
+                                                <input type="hidden" value="" name="additional_info" class="additional_info" />
                                                 <span class="customer-name" style="margin-top: 5px;display: inline-block;"></span>
+                                            </div>
+                                        </div>
+                                        <div class="form-group required">
+                                            <div class="col-sm-12" style="">
+                                                <section class="msg-select-option">
+                                                    <div>
+                                                        <input type="radio" class="msg-option-radio services" id="control_01" name="msg-select" value="1" checked>
+                                                        <label for="control_01" class="msg-otion-label">
+                                                            <h6>Initial</h6>
+                                                        </label>
+                                                    </div>
+                                                    <div>
+                                                        <input type="radio" class="msg-option-radio services" id="control_02" name="msg-select" value="2">
+                                                        <label for="control_02" class="msg-otion-label">
+                                                            <h6>Remainder</h6>
+                                                        </label>
+                                                    </div>
+                                                    <div>
+                                                        <input type="radio"  class="msg-option-radio services" id="control_03" name="msg-select" value="3">
+                                                        <label for="control_03" class="msg-otion-label">
+                                                            <h6>custom</h6>
+                                                        </label>
+                                                    </div>
+                                                </section>
                                             </div>
                                         </div>
                                         <div class="form-group required">

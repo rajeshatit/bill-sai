@@ -1,6 +1,6 @@
 /*    --------------------------------------------------
-	:: Login Section
-	-------------------------------------------------- */
+        :: Login Section
+        -------------------------------------------------- */
 #login {
     padding-top: 50px
 }
@@ -53,23 +53,23 @@
 }
 #login .btn.btn-custom {
     font-size: 14px;
-	margin-bottom: 20px;
+    margin-bottom: 20px;
 }
 #login .forget {
     font-size: 13px;
-	text-align: center;
-	display: block;
+    text-align: center;
+    display: block;
 }
 
 /*    --------------------------------------------------
-	:: Inputs & Buttons
-	-------------------------------------------------- */
+        :: Inputs & Buttons
+        -------------------------------------------------- */
 .form-control {
     color: #212121;
 }
 .btn-custom {
     color: #fff;
-	background-color: #1fa67b;
+    background-color: #1fa67b;
 }
 .btn-custom:hover,
 .btn-custom:focus {
@@ -78,7 +78,7 @@
 
 /*    --------------------------------------------------
     :: Footer
-	-------------------------------------------------- */
+        -------------------------------------------------- */
 #footer {
     color: #6d6d6d;
     font-size: 12px;
@@ -112,11 +112,11 @@
     width: 30%;
 }
 .col-wid-50{
-	width: 50%;
+    width: 50%;
 }
 .col-wid-100 {
     width: 100%;
-	display: flex;
+    display: flex;
 }
 
 .col-wid-70 {
@@ -124,23 +124,23 @@
 }
 
 .dis-inline{
-	display:inline-block;
-	float: left;
+    display:inline-block;
+    float: left;
 }
 .left-line {
     border-left: 1px solid black;
     padding-left: 5px;
 }
 .print-view{
-	border: 1px solid black;
+    border: 1px solid black;
     display: flex;
 }
 .table.table-print-view > thead > tr {
     border-top: 2px solid black;
-	border-bottom: 1px solid black;
+    border-bottom: 1px solid black;
 }
 .table.table-print-view > thead > tr > td{
-	border-color: black; 
+    border-color: black; 
 }
 table.table.table-bordered.table-invoice-details td {
     border-left: 0px;
@@ -153,7 +153,7 @@ table.table.table-bordered.table-invoice-details td {
 }
 .footer-logo td img {
     width: 50px;
-	margin: 3px;
+    margin: 3px;
 }
 .footer-logo td:first-child {
     border-left: 0px;
@@ -167,7 +167,7 @@ table.table.table-bordered.table-invoice-details td {
     border-top: 0px !important;
 }
 .table-print-view .empty-row{
-	height: 21px;
+    height: 21px;
 }
 .table-print-view td {
     border-left: 1px solid black;
@@ -176,9 +176,9 @@ table.table.table-bordered.table-invoice-details td {
     border-left: 0px;
 }
 .table-invoice-details td {
-	padding-top: 3px !important;
-	padding-bottom: 3px !important;
-	font-size: 15px;
+    padding-top: 3px !important;
+    padding-bottom: 3px !important;
+    font-size: 15px;
 }
 /*ajax data*/
 .additional_data {
@@ -187,8 +187,8 @@ table.table.table-bordered.table-invoice-details td {
     border: 1px solid #ddd;
     margin-top: 2px;
     background: white;
-	max-height: 100px;
-	overflow-y: auto;
+    max-height: 100px;
+    overflow-y: auto;
 }
 .additional_data .product_list {
     border-bottom: 1px solid #ddd;
@@ -205,19 +205,79 @@ table.table.table-bordered.table-invoice-details td {
 }
 .table-print-view td {
     padding-top: 3px !important;
-	padding-bottom: 3px !important;
-	font-size: 13px;
+    padding-bottom: 3px !important;
+    font-size: 13px;
 }
 /** top corner logo look **/
 .top-corner-icon i{line-height:25px;}
 @media print {
     .control-group {
-      display: none;
+        display: none;
     }
-	.print-view {
-		min-height: inherit !important;
-	}
-	.table-print-view td {
-		border-color: black !important;
-	}
+    .print-view {
+        min-height: inherit !important;
+    }
+    .table-print-view td {
+        border-color: black !important;
+    }
 }
+/** for Message select option start**/
+.msg-select-option {
+    display: flex;
+    flex-flow: row wrap;
+}
+.msg-select-option > div {
+    flex: 1;
+    padding: 2px;
+}
+.msg-option-radio {
+    display: none;
+    &:not(:disabled) ~ label.msg-otion-label {
+        cursor: pointer;
+    }
+    &:disabled ~ label.msg-otion-label {
+        color: hsla(150, 5%, 75%, 1);
+        border-color: hsla(150, 5%, 75%, 1);
+        box-shadow: none;
+        cursor: not-allowed;
+    }
+}
+label.msg-otion-label {
+    display: block;
+    background: white;
+    border: 1px solid #309bba;
+    border-radius: 20px;
+    padding: 6px 2px 2px 2px;
+    margin-bottom: 3px;
+    text-align: center;
+    box-shadow: 0px 3px 10px -2px hsla(150, 5%, 65%, 0.5);
+    position: relative;
+    height: 30px;
+}
+.msg-option-radio:checked + label.msg-otion-label {
+    background: #31b0d5;
+    color: hsla(215, 0%, 100%, 1);
+    box-shadow: 0px 0px 14px hsl(193.6, 52%, 60%);
+}
+label.msg-otion-label h6 {
+    font-weight: bold;
+}
+.msg-option-radio:checked + label.msg-otion-label::after {
+    color: hsla(215, 5%, 25%, 1);
+    font-family: FontAwesome;
+    border: 2px solid #7296a1;
+    content: "\f00c";
+    font-size: 12px;
+    position: absolute;
+    top: -12px;
+    left: 50%;
+    transform: translateX(-50%);
+    height: 24px;
+    width: 24px;
+    line-height: 20px;
+    text-align: center;
+    border-radius: 50%;
+    background: white;
+    box-shadow: 0px 2px 5px -2px hsla(0, 0%, 0%, 0.25);
+}
+/** for Message select option end**/
