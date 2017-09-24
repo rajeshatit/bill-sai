@@ -307,7 +307,7 @@ function setCustomMessage(checked_msg,check_services){
 //                var custom_date = cus.getDate() +' - ' + cus.getMonth() + ' - ' + cus.getFullYear();
                 var custom_date = $.datepicker.formatDate('dd-M-yy', cus);
                 var cus_km = parseInt(obj.city) + 2000;
-                send_msg = 'Hi('+ obj.customer_name +'), this is friendly reminder for Your '+ obj.vehicle_make +' ('+ obj.vehicle_no +')  is due for free Wheel Alingment will end on ('+ custom_date +') or ('+ cus_km +').\nPlease check it for comfortable and safe drive . Thank you,\nRgds,\nSRI SAI WHEEL CARE, Akm.';
+                send_msg = 'Hi('+ obj.customer_name +'), this is friendly reminder for Your '+ obj.vehicle_make +' ('+ obj.vehicle_no +')  is due for free Wheel Alingment will end on ('+ custom_date +') or ('+ cus_km +' km).\nPlease check it for comfortable and safe drive . Thank you,\nRgds,\nSRI SAI WHEEL CARE, Akm.';
             }
         }
         if(checked_msg == 3){
