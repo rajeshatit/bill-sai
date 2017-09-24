@@ -293,24 +293,25 @@ function setCustomMessage(checked_msg,check_services){
         var send_msg = '';
         //alert(check_services);
         if(checked_msg == 1){
-            send_msg = 'Thanks for your Vist our pitstop for your wheels. \n Sri Sai Wheel Care, Akm';
+            send_msg = 'Thank you for visiting our shop and purchasing a new tyres, keep good tyres always in your vehicle for comfortable and safe drive.\nSRI SAI WHEEL CARE, Akm.';
             if(check_services){
-                send_msg = 'Thank you for your visit to our pitstop for your wheels,,,,\nplease ensure your wheel alignment for every 5000 KM for comfortable and safe drive,\nRgds,\nSri Sai Wheel Care.';
+                send_msg = 'Your '+ obj.vehicle_make +' ('+ obj.customer_name +') was serviced and is ready for delivery. please check your wheel alignment / balancing for every 5000 KM for comfortable and safe drive.\nThank you for visting our shop.\nRegards,\nSRI SAI WHEEL CARE, Akm.';
             }
         }
         if(checked_msg == 2){
-            send_msg = 'ngjkfg';
+            send_msg = 'Custom Message';
             if(check_services){
                 var purchase_date = obj.date_added;
 //                custom_date = purchase_date.setMonth(purchase_date.getMonth() + 1);
                 var cus = new Date((+new Date(purchase_date)) + 2678400000);
 //                var custom_date = cus.getDate() +' - ' + cus.getMonth() + ' - ' + cus.getFullYear();
                 var custom_date = $.datepicker.formatDate('dd-M-yy', cus);
-                send_msg = 'Hi('+ obj.customer_name +') this is friendly reminder from DP wheel care point kpm,\nthat your vehicle ('+ obj.city +')  free wheel alignment  Will end tomorrow ('+ custom_date +').\nplease check it  for comfortable and safe drive.\nRgds,\nSri Sai Wheel Care.';
+                var cus_km = parseInt(obj.city) + 2000;
+                send_msg = 'Hi('+ obj.customer_name +'), this is friendly reminder for Your '+ obj.vehicle_make +' ('+ obj.vehicle_no +')  is due for free Wheel Alingment will end on ('+ custom_date +') or ('+ cus_km +').\nPlease check it for comfortable and safe drive . Thank you,\nRgds,\nSRI SAI WHEEL CARE, Akm.';
             }
         }
         if(checked_msg == 3){
-            send_msg = 'jkjkgjkgh';
+            send_msg = 'Custom Message';
         }
         //alert(send_msg);
         $('.message-content .form-control.message').val(send_msg);
