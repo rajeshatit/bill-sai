@@ -10,7 +10,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     // Get form details
     $customer_name = $_POST['customer_name'];
     $address = $_POST['address'];
-    $city = '';
+    $city = $_POST['city'];
     $vehicle_make = $_POST['vehicle_make'];
     $vehicle_no = $_POST['vehicle_no'];
     $phone = $_POST['phone'];
@@ -131,7 +131,7 @@ if($_GET['id']){
                     <div class="container-fluid">
                         <div class="pull-right">
                             <button type="submit" form="form-category" data-toggle="tooltip" title="" class="btn btn-primary" data-original-title="Create Bill"><i class="fa fa-save"></i></button>
-                            <a href="manage-sales.phtml" data-toggle="tooltip" title="" class="btn btn-default" data-original-title="Cancel"><i class="fa fa-reply"></i></a>
+                            <a href="manage-services.phtml" data-toggle="tooltip" title="" class="btn btn-default" data-original-title="Cancel"><i class="fa fa-reply"></i></a>
                         </div>
                         <h1><?php if($_GET['id']) echo 'Edit Services Billing'; else echo 'Add Services Billing';  ?></h1>
                         <ul class="breadcrumb">
@@ -251,6 +251,7 @@ if($_GET['id']){
                                                         <?php endif; ?>
                                                     </tbody>
                                                 </table>
+                                                <input class="no_of_product_rows" type="hidden" value="<?php echo $no_rows; ?>" />
                                             </div>
 
                                         </div>

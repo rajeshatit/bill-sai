@@ -295,7 +295,7 @@ function setCustomMessage(checked_msg,check_services){
         if(checked_msg == 1){
             send_msg = 'Thank you for visiting our shop and purchasing a new tyres, keep good tyres always in your vehicle for comfortable and safe drive.\nSRI SAI WHEEL CARE, Akm.';
             if(check_services){
-                send_msg = 'Your '+ obj.vehicle_make +' ('+ obj.customer_name +') was serviced and is ready for delivery. please check your wheel alignment / balancing for every 5000 KM for comfortable and safe drive.\nThank you for visting our shop.\nRegards,\nSRI SAI WHEEL CARE, Akm.';
+                send_msg = 'Your '+ obj.vehicle_make +' ('+ obj.vehicle_no +') was serviced and is ready for delivery. please check your wheel alignment / balancing for every 5000 KM for comfortable and safe drive.\nThank you for visting our shop.\nRgds,\nSRI SAI WHEEL CARE, Akm.';
             }
         }
         if(checked_msg == 2){
@@ -307,7 +307,7 @@ function setCustomMessage(checked_msg,check_services){
 //                var custom_date = cus.getDate() +' - ' + cus.getMonth() + ' - ' + cus.getFullYear();
                 var custom_date = $.datepicker.formatDate('dd-M-yy', cus);
                 var cus_km = parseInt(obj.city) + 2000;
-                send_msg = 'Hi('+ obj.customer_name +'), this is friendly reminder for Your '+ obj.vehicle_make +' ('+ obj.vehicle_no +')  is due for free Wheel Alingment will end on ('+ custom_date +') or ('+ cus_km +' km).\nPlease check it for comfortable and safe drive . Thank you,\nRgds,\nSRI SAI WHEEL CARE, Akm.';
+                send_msg = 'Hi '+ obj.customer_name +', this is friendly reminder for Your '+ obj.vehicle_make +' ('+ obj.vehicle_no +')  is due for free Wheel Alingment will end on ('+ custom_date +') or ('+ cus_km +' km).\nPlease check it for comfortable and safe drive . Thank you,\nRgds,\nSRI SAI WHEEL CARE, Akm.';
             }
         }
         if(checked_msg == 3){
