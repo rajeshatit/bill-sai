@@ -103,7 +103,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     }
 }
 $order_detail = $product_result = array();
+$order_detail['customer_name'] = $order_detail['address'] = $order_detail['vehicle_make'] = $order_detail['vehicle_no'] = $order_detail['city'] = $order_detail['phone'] = $order_detail['email'] = '';
 $product_count = 0;
+if(!isset($_GET['id'])){
+    $_GET['id']='';
+}
 if($_GET['id']){
     // Order Details
     $order_id = $_GET['id'];

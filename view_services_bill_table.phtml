@@ -63,10 +63,9 @@ if (!$order_detail['vat_percent']) {
                                             <div style="font-size: 12px;margin-bottom: 2px;">
                                                 <?php echo $order_detail['customer_name']; ?><br/>
                                                 <?php echo nl2br($order_detail['address']); ?><br/>
-                                                <?php echo $order_detail['city']; ?>
                                                 <?php echo $order_detail['phone'] . '</br>'; ?>
                                                 <?php echo $order_detail['vehicle_make'] . '</br>'; ?>
-                                                <?php echo $order_detail['vehicle_no']; ?>&nbsp;-&nbsp;<?php echo $order_detail['city']; ?>
+                                                <?php echo $order_detail['vehicle_no']; ?>&nbsp;-&nbsp;<?php echo $order_detail['city'].' km'; ?>
                                             </div>									
                                         </div>
                                     </div>
